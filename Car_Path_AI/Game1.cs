@@ -70,6 +70,8 @@ namespace Car_Path_AI
         SpriteBatch spriteBatch;
         public static Random r;
 
+        Car testcar;
+
         #region INPUT
 
         public static Keyboard_States kb_states;
@@ -145,6 +147,9 @@ namespace Car_Path_AI
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            testcar = new Car(new Vector2(200));
+            testcar.dir = new Vector2(1, 0);
+
         }
 
         protected override void UnloadContent()
@@ -162,6 +167,7 @@ namespace Car_Path_AI
                 Exit();
 
 
+            testcar.Update();
 
 
             kb_states.Old = kb_states.New;
@@ -177,7 +183,11 @@ namespace Car_Path_AI
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            spriteBatch.Begin();
+
+            testcar.Draw(spriteBatch);
+
+            spriteBatch.End();
 
             base.Draw(gameTime);
         }
