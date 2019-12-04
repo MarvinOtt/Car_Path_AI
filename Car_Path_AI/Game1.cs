@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Car_Path_AI
 {
@@ -61,6 +62,17 @@ namespace Car_Path_AI
         }
     }
 
+    public struct Line
+    {
+        public Point start, end;
+        public Line(Point start, Point end)
+        {
+            this.start = start;
+            this.end = end;
+        }
+       
+
+    }
     public class Game1 : Game
     {   
         public static ContentManager content;
@@ -70,6 +82,11 @@ namespace Car_Path_AI
         SpriteBatch spriteBatch;
         public static Random r;
 
+        public bool DrawingEnabled = true;
+        public bool IsDrawing;
+        Point posA, posB;
+
+        List<Line> lines;
         Car[] cars;
 
         public static Texture2D pixel;
@@ -146,6 +163,7 @@ namespace Car_Path_AI
 
         protected override void LoadContent()
         {
+            lines = new List<Line>();
             r = new Random();
             pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Bgra32);
             Color[] colors = new Color[1];
@@ -166,14 +184,29 @@ namespace Car_Path_AI
             // TODO: Unload any non ContentManager content here
         }
 
+   
+
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
             kb_states.New = Keyboard.GetState();
             mo_states.New = Mouse.GetState();
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            if(mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
+            {
+                if (IsDrawing)
+                {
+                    posB = mo_states.New.Position;
+                    lines.Add(new Line(posA, posB));
+                }
+                posA = mo_states.New.Position;
+                IsDrawing = true;
+            }
+            if (mo_states.IsRightButtonToggleOn() && IsDrawing)
+            {
+                IsDrawing = false;
+            }
+
 
             for (int i = 0; i < cars.Length; ++i)
                 cars[i].Update();
@@ -197,9 +230,18 @@ namespace Car_Path_AI
             for (int i = 0; i < cars.Length; ++i)
                 cars[i].Draw(spriteBatch);
 
+            if (IsDrawing)
+            {
+                spriteBatch.DrawLine(posA.X, posA.Y, mo_states.New.Position.X, mo_states.New.Position.Y, Color.Black);
+            }
+            for(int i = 0; i < lines.Count; i++)
+            {
+                spriteBatch.DrawLine(lines[i].start.X,lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Black);
+            }
             spriteBatch.End();
 
             base.Draw(gameTime);
         }
+        
     }
 }

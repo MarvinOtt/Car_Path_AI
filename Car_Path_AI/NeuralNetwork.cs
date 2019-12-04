@@ -22,8 +22,7 @@ namespace Car_Path_AI
 
     public class NeuralNetwork
     {
-        //float[] input_values;
-        //float[] output_values;
+
         public int layer_count;
         Node[][] nodes;
 
