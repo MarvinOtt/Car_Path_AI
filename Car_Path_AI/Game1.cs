@@ -1,69 +1,171 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace Car_Path_AI
 {
-    /// <summary>
-    /// This is the main type for your game.
-    /// </summary>
-    public class Game1 : Game
+    public struct Mouse_States
     {
+        public MouseState New, Old;
+
+        public Mouse_States(MouseState New, MouseState Old)
+        {
+            this.New = New;
+            this.Old = Old;
+        }
+
+        public bool IsMiddleButtonToggleOn()
+        {
+            return New.MiddleButton == ButtonState.Pressed && Old.MiddleButton == ButtonState.Released;
+        }
+        public bool IsMiddleButtonToggleOff()
+        {
+            return New.MiddleButton == ButtonState.Released && Old.MiddleButton == ButtonState.Pressed;
+        }
+
+        public bool IsLeftButtonToggleOn()
+        {
+            return New.LeftButton == ButtonState.Pressed && Old.LeftButton == ButtonState.Released;
+        }
+        public bool IsRightButtonToggleOn()
+        {
+            return New.RightButton == ButtonState.Pressed && Old.RightButton == ButtonState.Released;
+        }
+        public bool IsLeftButtonToggleOff()
+        {
+            return New.LeftButton == ButtonState.Released && Old.LeftButton == ButtonState.Pressed;
+        }
+        public bool IsRightButtonToggleOff()
+        {
+            return New.RightButton == ButtonState.Released && Old.RightButton == ButtonState.Pressed;
+        }
+    }
+    public struct Keyboard_States
+    {
+        public KeyboardState New, Old;
+
+        public Keyboard_States(KeyboardState New, KeyboardState Old)
+        {
+            this.New = New;
+            this.Old = Old;
+        }
+        public bool IsKeyToggleDown(Keys key)
+        {
+            return New.IsKeyDown(key) && Old.IsKeyUp(key);
+        }
+        public bool IsKeyToggleUp(Keys key)
+        {
+            return !IsKeyToggleDown(key);
+        }
+    }
+
+    public class Game1 : Game
+    {   
+        public static ContentManager content;
+        public static System.Windows.Forms.Form form;
+        public static event EventHandler GraphicsChanged;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        public static Random r;
+
+        #region INPUT
+
+        public static Keyboard_States kb_states;
+        public static Mouse_States mo_states;
+
+        private bool GraphicsNeedApplyChanges;
+
+        #endregion
+
+        public static int Screenwidth;
+        public static int Screenheight;
 
         public Game1()
         {
-            graphics = new GraphicsDeviceManager(this);
+            GraphicsChanged += UpdateEverythingOfGraphics;
+            graphics = new GraphicsDeviceManager(this)
+            {
+                GraphicsProfile = GraphicsProfile.HiDef,
+                PreferredBackBufferWidth = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width - 100,
+                PreferredBackBufferHeight = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height - 100,
+                IsFullScreen = false,
+                SynchronizeWithVerticalRetrace = true
+
+            };
+            graphics.PreparingDeviceSettings += new EventHandler<PreparingDeviceSettingsEventArgs>(SetToPreserve);
+            IsFixedTimeStep = false;
+            Window.IsBorderless = false;
+
             Content.RootDirectory = "Content";
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
+        // Gets called everytime the Windows Size gets changed
+        void Window_ClientSizeChanged(object sender, EventArgs e)
+        {
+            if (Window.ClientBounds.Width != 0)
+                graphics.PreferredBackBufferWidth = Window.ClientBounds.Width;
+            if (Window.ClientBounds.Height != 0)
+                graphics.PreferredBackBufferHeight = Window.ClientBounds.Height;
+            // Not Applying Graphics here because when resizing happens, ApplyChanges would be called too often which could cause a crash
+            // When resizing happens, the Update Method is not going to be called so long until resizing is finished, and therefore Apply Changes gets only called once
+            GraphicsNeedApplyChanges = true;
+        }
+
+        public void UpdateEverythingOfGraphics(object sender, EventArgs e)
+        {
+            Screenwidth = graphics.PreferredBackBufferWidth;
+            Screenheight = graphics.PreferredBackBufferHeight;
+        }
+        void SetToPreserve(object sender, PreparingDeviceSettingsEventArgs eventargs) { eventargs.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents; }
+        void GetsMinimized(object sender, System.Windows.Forms.FormClosingEventArgs e)
+        {
+            System.Windows.Forms.CloseReason c = e.CloseReason;
+        }
+
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            content = Content;
+            IsMouseVisible = true;
+            form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(this.Window.Handle);
+            form.Location = new System.Drawing.Point(0, 0);
+            form.MaximizeBox = true;
+            form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            form.Resize += Window_ClientSizeChanged;
+            form.FormClosing += GetsMinimized;
+            form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            GraphicsChanged(null, EventArgs.Empty);
 
             base.Initialize();
         }
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
         }
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
         }
 
-        /// <summary>
-        /// Allows the game to run logic such as updating the world,
-        /// checking for collisions, gathering input, and playing audio.
-        /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            kb_states.New = Keyboard.GetState();
+            mo_states.New = Mouse.GetState();
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
 
+
+
+            kb_states.Old = kb_states.New;
+            mo_states.Old = mo_states.New;
             base.Update(gameTime);
         }
 
