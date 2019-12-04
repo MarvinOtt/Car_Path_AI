@@ -156,7 +156,7 @@ namespace Car_Path_AI
             for(int i = 0; i < cars.Length; ++i)
             {
                 cars[i] = new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight)));
-                cars[i].rot = r.Next(0, 10000) * 0.003f;
+                //cars[i].rot = r.Next(0, 10000) * 0.003f;
             }
 
         }
