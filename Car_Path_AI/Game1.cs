@@ -192,13 +192,31 @@ namespace Car_Path_AI
             kb_states.New = Keyboard.GetState();
             mo_states.New = Mouse.GetState();
 
-            if(mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
+
+            if (mo_states.New.LeftButton == ButtonState.Pressed)
             {
+                
                 if (IsDrawing)
                 {
-                    posB = mo_states.New.Position;
-                    lines.Add(new Line(posA, posB));
+
+                    //posB = mo_states.New.Position;
+                    Point dif = posA - mo_states.New.Position;
+
+                    if (dif.ToVector2().Length() > 20)
+                    {
+                        posB = mo_states.New.Position;
+                        lines.Add(new Line(posA, posB));
+                        posA = mo_states.New.Position;
+                    }
+                   
                 }
+                
+            }
+            if(mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
+            {
+                lines.Add(new Line(posA, posB));
+                if(IsDrawing)
+                posB = mo_states.New.Position;
                 posA = mo_states.New.Position;
                 IsDrawing = true;
             }
