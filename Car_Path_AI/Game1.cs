@@ -86,7 +86,7 @@ namespace Car_Path_AI
         public bool IsDrawing;
         Point posA, posB;
 
-        List<Line> lines;
+        public static List<Line> lines;
         Car[] cars;
 
         public static Texture2D pixel;
