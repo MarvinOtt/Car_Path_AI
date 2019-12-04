@@ -14,8 +14,8 @@ namespace Car_Path_AI
         public const int CRASHED = 1;
         public const int FINISHED = 2;
 
-        public Vector2 pos, dir;
-        public float speed, acl;
+        public Vector2 pos;
+        public float speed, acl, rot;
         public int State;
         public int driving_time;
 
@@ -41,16 +41,19 @@ namespace Car_Path_AI
                 
                 
             }
+            rot += 0.1f;
         }
 
         public float RotationFromDir(Vector2 dir)
         {
-            return (float)(Math.Atan2(dir.Y, dir.X));
+            float res = (float)(Math.Atan2(dir.Y, dir.X));
+            return res;
         }
 
         public void Draw(SpriteBatch spritebatch)
         {
-            spritebatch.Draw(tex, new Rectangle(new Point((int)pos.X, (int)pos.Y), new Point(117, 46)), new Rectangle(0, 0, 117, 46), Color.White, (RotationFromDir(dir) - (float)Math.PI / 2.0f), new Vector2(40, 23), SpriteEffects.None, 0);
+            spritebatch.Draw(tex, new Rectangle(new Point((int)pos.X, (int)pos.Y), new Point(117, 46)), new Rectangle(0, 0, 117, 46), Color.White, (rot), new Vector2(40, 23), SpriteEffects.None, 0);
+            spritebatch.DrawFilledRectangle(new Rectangle((int)pos.X - 3, (int)pos.Y - 3, 6, 6), Color.Red);
         }
     }
 }

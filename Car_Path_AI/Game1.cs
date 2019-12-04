@@ -70,7 +70,9 @@ namespace Car_Path_AI
         SpriteBatch spriteBatch;
         public static Random r;
 
-        Car testcar;
+        Car[] cars;
+
+        public static Texture2D pixel;
 
         #region INPUT
 
@@ -144,11 +146,18 @@ namespace Car_Path_AI
 
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
+            r = new Random();
+            pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Bgra32);
+            Color[] colors = new Color[1];
+            colors[0] = Color.White;
+            pixel.SetData(colors);
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            testcar = new Car(new Vector2(200));
-            testcar.dir = new Vector2(1, 0);
+            cars = new Car[5];
+            for(int i = 0; i < cars.Length; ++i)
+            {
+                cars[i] = new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight)));
+                cars[i].rot = r.Next(0, 10000) * 0.003f;
+            }
 
         }
 
@@ -166,8 +175,8 @@ namespace Car_Path_AI
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-
-            testcar.Update();
+            for (int i = 0; i < cars.Length; ++i)
+                cars[i].Update();
 
 
             kb_states.Old = kb_states.New;
@@ -185,7 +194,8 @@ namespace Car_Path_AI
 
             spriteBatch.Begin();
 
-            testcar.Draw(spriteBatch);
+            for (int i = 0; i < cars.Length; ++i)
+                cars[i].Draw(spriteBatch);
 
             spriteBatch.End();
 
