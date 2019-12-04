@@ -232,11 +232,11 @@ namespace Car_Path_AI
 
             if (IsDrawing)
             {
-                spriteBatch.DrawLine(posA.X, posA.Y, mo_states.New.Position.X, mo_states.New.Position.Y, Color.Black);
+                spriteBatch.DrawLine(posA.X, posA.Y, mo_states.New.Position.X, mo_states.New.Position.Y, Color.Black, 2);
             }
             for(int i = 0; i < lines.Count; i++)
             {
-                spriteBatch.DrawLine(lines[i].start.X,lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Black);
+                spriteBatch.DrawLine(lines[i].start.X,lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Black,2);
             }
             spriteBatch.End();
 
