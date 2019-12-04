@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +19,10 @@ namespace Car_Path_AI
         public float speed, acl, rot;
         public int State;
         public int driving_time;
+        public Matrix matr;
 
         public static Texture2D tex;
+
 
         public Car(Vector2 pos)
         {
@@ -38,10 +41,25 @@ namespace Car_Path_AI
 
                 // Check for Finish
 
-                
-                
+                if (Game1.kb_states.New.IsKeyDown(Keys.W))
+                    acl = 0.12f;
+                else if (Game1.kb_states.New.IsKeyDown(Keys.S))
+                    acl = -0.12f;
+                else
+                    acl = 0;
+
+                if (Game1.kb_states.New.IsKeyDown(Keys.D))
+                    rot += 0.0125f * speed;
+                if (Game1.kb_states.New.IsKeyDown(Keys.A))
+                    rot -= 0.0125f * speed;
+
+                matr = Matrix.CreateRotationZ(rot);
+
+                speed += acl;
+                Vector2 dir = DirFromRotation(rot);
+                pos += dir * speed;
             }
-            rot += 0.1f;
+            //rot += 0.01f;
         }
 
         public float RotationFromDir(Vector2 dir)
@@ -49,11 +67,75 @@ namespace Car_Path_AI
             float res = (float)(Math.Atan2(dir.Y, dir.X));
             return res;
         }
+        public Vector2 DirFromRotation(float rot)
+        {
+            return new Vector2((float)Math.Cos(rot), (float)Math.Sin(rot));
+        }
+        bool onSegment(Point p, Point q, Point r)
+        {
+            if (q.X <= Math.Max(p.X, r.X) && q.X >= Math.Min(p.X, r.X) &&
+                q.Y <= Math.Max(p.Y, r.Y) && q.Y >= Math.Min(p.Y, r.Y))
+                return true;
+
+            return false;
+        }
+
+        int orientation(Point p, Point q, Point r)
+        {
+            int val = (q.Y - p.Y) * (r.X - q.X) -
+                      (q.X - p.X) * (r.Y - q.Y);
+
+            if (val == 0) return 0;  // colinear 
+
+            return (val > 0) ? 1 : 2; // clock or counterclock wise 
+        }
+        bool doIntersect(Point p1, Point q1, Point p2, Point q2)
+        {
+            // Find the four orientations needed for general and 
+            // special cases 
+            int o1 = orientation(p1, q1, p2);
+            int o2 = orientation(p1, q1, q2);
+            int o3 = orientation(p2, q2, p1);
+            int o4 = orientation(p2, q2, q1);
+
+            // General case 
+            if (o1 != o2 && o3 != o4)
+                return true;
+
+            // Special Cases 
+            // p1, q1 and p2 are colinear and p2 lies on segment p1q1 
+            if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+
+            // p1, q1 and q2 are colinear and q2 lies on segment p1q1 
+            if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+
+            // p2, q2 and p1 are colinear and p1 lies on segment p2q2 
+            if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+
+            // p2, q2 and q1 are colinear and q1 lies on segment p2q2 
+            if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+
+            return false; // Doesn't fall in any of the above cases 
+        }
 
         public void Draw(SpriteBatch spritebatch)
         {
             spritebatch.Draw(tex, new Rectangle(new Point((int)pos.X, (int)pos.Y), new Point(117, 46)), new Rectangle(0, 0, 117, 46), Color.White, (rot), new Vector2(40, 23), SpriteEffects.None, 0);
             spritebatch.DrawFilledRectangle(new Rectangle((int)pos.X - 3, (int)pos.Y - 3, 6, 6), Color.Red);
+
+            Vector2 v = new Vector2(-40, -23);
+            Vector2 v1 = pos + Vector2.Transform(v, matr);
+            Vector2 v2 = pos + Vector2.Transform(v + new Vector2(117, 0), matr);
+            Vector2 v3 = pos + Vector2.Transform(v + new Vector2(117, 46), matr);
+            Vector2 v4 = pos + Vector2.Transform(v + new Vector2(0, 46), matr);
+            spritebatch.DrawFilledRectangle(new Rectangle((int)v1.X - 3, (int)v1.Y - 3, 6, 6), Color.Blue);
+            spritebatch.DrawFilledRectangle(new Rectangle((int)v2.X - 3, (int)v2.Y - 3, 6, 6), Color.Blue);
+            spritebatch.DrawFilledRectangle(new Rectangle((int)v3.X - 3, (int)v3.Y - 3, 6, 6), Color.Blue);
+            spritebatch.DrawFilledRectangle(new Rectangle((int)v4.X - 3, (int)v4.Y - 3, 6, 6), Color.Blue);
+
+            
+
+            //v = Vector2.Transform(v, matr);
         }
     }
 }
