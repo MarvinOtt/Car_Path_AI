@@ -93,10 +93,12 @@ namespace Car_Path_AI
             {
                 spritebatch.DrawLine(lines[i].start.X, lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Red, 3);
             }
-            if(goal.Size.X  > 0 )
-            {
-                spritebatch.DrawFilledRectangle(goal, Color.Chartreuse);
-            }
+            spritebatch.DrawFilledRectangle(goal, Color.Chartreuse);
+            spritebatch.DrawHollowRectangle(new Rectangle(startpos.ToPoint() - new Point(4), new Point(8)), Color.Bisque, 2);
+            spritebatch.DrawLine(startpos.ToPoint(), (Car.DirFromRotation(startdir) * 50).ToPoint() + startpos.ToPoint(), Color.Wheat);
+
+
+
 
         }
 
