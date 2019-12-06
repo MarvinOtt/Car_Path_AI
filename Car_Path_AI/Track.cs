@@ -27,43 +27,59 @@ namespace Car_Path_AI
 
         public void Update()
         {
-            if (Game1.mo_states.New.LeftButton == ButtonState.Pressed)
+            if (Game1.kb_states.New.IsKeyUp(Keys.LeftControl))
             {
-
-                if (IsDrawing)
+                if (Game1.mo_states.New.LeftButton == ButtonState.Pressed)
                 {
 
-                    Point dif = posA - Game1.mo_states.New.Position;
-
-                    if (dif.ToVector2().Length() > 20)
+                    if (IsDrawing)
                     {
-                        posB = Game1.mo_states.New.Position;
-                        lines.Add(new Line(posA, posB));
-                        posA = Game1.mo_states.New.Position;
+
+                        Point dif = posA - Game1.mo_states.New.Position;
+
+                        if (dif.ToVector2().Length() > 20)
+                        {
+                            posB = Game1.mo_states.New.Position;
+                            lines.Add(new Line(posA, posB));
+                            posA = Game1.mo_states.New.Position;
+                        }
+
                     }
 
                 }
-
-            }
-            if (Game1.mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
-            {
-                if (IsDrawing)
+                if (Game1.mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
                 {
-                    posB = Game1.mo_states.New.Position;
-                    lines.Add(new Line(posA, posB));
+                    if (IsDrawing)
+                    {
+                        posB = Game1.mo_states.New.Position;
+                        lines.Add(new Line(posA, posB));
+                    }
+                    posA = Game1.mo_states.New.Position;
+                    IsDrawing = true;
                 }
-                posA = Game1.mo_states.New.Position;
-                IsDrawing = true;
+                if (Game1.mo_states.IsRightButtonToggleOn() && IsDrawing)
+                {
+                    IsDrawing = false;
+                }
             }
-            if (Game1.mo_states.IsRightButtonToggleOn() && IsDrawing)
+            else
             {
-
-                IsDrawing = false;
+                if(Game1.mo_states.IsLeftButtonToggleOn())
+                {
+                    startpos = Game1.mo_states.New.Position.ToVector2();
+                }
+                else if (Game1.mo_states.IsLeftButtonToggleOff())
+                {
+                    Vector2 dir = Game1.mo_states.New.Position.ToVector2() - startpos;
+                    startdir = Car.RotationFromDir(Vector2.Normalize(dir));
+                }
             }
             if(Game1.mo_states.IsMiddleButtonToggleOff())
             {
-               
+                goal = new Rectangle(new Point(Game1.mo_states.New.Position.X -15, Game1.mo_states.New.Position.Y -15), new Point(30));
+                goalpos = goal.Location.ToVector2() + new Vector2(15);
             }
+
         }
 
         public void Draw(SpriteBatch spritebatch)
@@ -76,6 +92,10 @@ namespace Car_Path_AI
             for (int i = 0; i < lines.Count; i++)
             {
                 spritebatch.DrawLine(lines[i].start.X, lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Red, 3);
+            }
+            if(goal.Size.X  > 0 )
+            {
+                spritebatch.DrawFilledRectangle(goal, Color.Chartreuse);
             }
 
         }

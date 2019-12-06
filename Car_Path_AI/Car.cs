@@ -62,7 +62,7 @@ namespace Car_Path_AI
             //rot += 0.01f;
         }
 
-        public float RotationFromDir(Vector2 dir)
+        public static float RotationFromDir(Vector2 dir)
         {
             float res = (float)(Math.Atan2(dir.Y, dir.X));
             return res;
