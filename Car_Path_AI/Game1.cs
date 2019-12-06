@@ -195,6 +195,7 @@ namespace Car_Path_AI
             if (kb_states.IsKeyToggleDown(Keys.Space))
                 IsPause ^= true;
 
+            track.UpdateIO();
             if (!IsPause)
             {
                 curframe++;

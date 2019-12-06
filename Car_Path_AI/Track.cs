@@ -26,7 +26,7 @@ namespace Car_Path_AI
             cars = new List<Car>();
         }
 
-        public void Update()
+        public void UpdateIO()
         {
             if (Game1.kb_states.New.IsKeyUp(Keys.LeftControl))
             {
@@ -65,7 +65,7 @@ namespace Car_Path_AI
             }
             else
             {
-                if(Game1.mo_states.IsLeftButtonToggleOn())
+                if (Game1.mo_states.IsLeftButtonToggleOn())
                 {
                     startpos = Game1.mo_states.New.Position.ToVector2();
                 }
@@ -75,12 +75,15 @@ namespace Car_Path_AI
                     startdir = Car.RotationFromDir(Vector2.Normalize(dir));
                 }
             }
-            if(Game1.mo_states.IsMiddleButtonToggleOff())
+            if (Game1.mo_states.IsMiddleButtonToggleOff())
             {
                 goal = new Rectangle(new Point(Game1.mo_states.New.Position.X - 15, Game1.mo_states.New.Position.Y - 15), new Point(30));
                 goalpos = goal.Location.ToVector2() + new Vector2(15);
             }
-        
+        }
+
+        public void Update()
+        {
             // Simulate Cars
             for (int i = 0; i < cars.Count; ++i)
                 cars[i].Update();
