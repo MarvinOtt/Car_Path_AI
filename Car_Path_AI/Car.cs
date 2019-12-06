@@ -15,9 +15,10 @@ namespace Car_Path_AI
         public const int CRASHED = 1;
         public const int FINISHED = 2;
 
+        NeuralNetwork network;
         bool IsIntersect = false;
         public Vector2 pos;
-        public float speed, acl, rot;
+        public float speed, acl, rot, steering, steering_acl;
         public int State;
         public int driving_time;
         public Matrix matr;
@@ -32,6 +33,8 @@ namespace Car_Path_AI
             if (tex == null)
                 tex = Game1.content.Load<Texture2D>("CarTexture");
             this.pos = pos;
+            int[] nodeanz = new int[] { 4, 4, 4, 2 };
+            network = new NeuralNetwork(nodeanz);
         }
 
         public void Reset(Vector2 pos, float rot)
@@ -39,6 +42,7 @@ namespace Car_Path_AI
             this.pos = pos;
             this.rot = rot;
             speed = acl = driving_time = 0;
+            steering = steering_acl = 0;
             State = DRIVING;
         }
 
@@ -53,24 +57,45 @@ namespace Car_Path_AI
                 // Check for Finish
 
                 if (Game1.kb_states.New.IsKeyDown(Keys.W))
-                    acl = 0.12f;
+                    acl = 1;
                 else if (Game1.kb_states.New.IsKeyDown(Keys.S))
-                    acl = -0.12f;
+                    acl = -1;
                 else
                     acl = 0;
 
                 if (Game1.kb_states.New.IsKeyDown(Keys.D))
-                    rot += 0.0125f * speed;
-                if (Game1.kb_states.New.IsKeyDown(Keys.A))
-                    rot -= 0.0125f * speed;
+                    steering_acl = 1;
+                else if (Game1.kb_states.New.IsKeyDown(Keys.A))
+                    steering_acl = -1;
+                else
+                    steering_acl = 0;
 
-                matr = Matrix.CreateRotationZ(rot);
 
-                speed += acl;
+
+
+
+                network.nodes[0][0].input = speed;
+                network.nodes[0][1].input = steering;
+                network.nodes[0][2].input = 1;
+                network.nodes[0][3].input = -1;
+
+                network.Simulate();
+
+                acl = network.nodes[3][0].input;
+                steering_acl = network.nodes[3][1].input;
+
+                steering += MathHelper.Clamp(steering_acl, -1, 1) * 0.03f;
+                steering = MathHelper.Clamp(steering, -1, 1);
+                acl = MathHelper.Clamp(acl, -1, 1);
+                rot += steering * 0.01f * speed;
+                speed += acl * 0.1f;
                 Vector2 dir = DirFromRotation(rot);
                 pos += dir * speed;
 
+
+
                 //Check Hitbox
+                matr = Matrix.CreateRotationZ(rot);
                 Vector2 v = new Vector2(-40, -23);
                 v1 = pos + Vector2.Transform(v, matr);
                 v2 = pos + Vector2.Transform(v + new Vector2(117, 0), matr);
@@ -84,13 +109,18 @@ namespace Car_Path_AI
                 IsIntersect = false;
                 for (int i = 0; i < Game1.track.lines.Count; ++i)
                 {
-                    Line cur = Game1.lines[i];
+                    Line cur = Game1.track.lines[i];
                     if (doIntersect(cur, l1) || doIntersect(cur, l2) || doIntersect(cur, l3) || doIntersect(cur, l4))
                     {
                         IsIntersect = true;
                         break;
                     }
                 }
+                if(IsIntersect)
+                {
+                    State = CRASHED;
+                }
+                
             }
             //rot += 0.01f;
         }

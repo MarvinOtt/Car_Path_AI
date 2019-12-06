@@ -24,7 +24,7 @@ namespace Car_Path_AI
     {
 
         public int layer_count;
-        Node[][] nodes;
+        public Node[][] nodes;
 
 
         public NeuralNetwork(int[] alllayer_count)

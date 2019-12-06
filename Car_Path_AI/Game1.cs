@@ -84,8 +84,8 @@ namespace Car_Path_AI
 
 
         public static Track track;
-
-        Car[] cars;
+        public int maxframes, curframe;
+        public bool IsPause = true;
 
         public static Texture2D pixel;
 
@@ -168,13 +168,15 @@ namespace Car_Path_AI
             colors[0] = Color.White;
             pixel.SetData(colors);
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            cars = new Car[10];
-            for(int i = 0; i < cars.Length; ++i)
+            track = new Track();
+
+            for (int i = 0; i < 10; ++i)
             {
-                cars[i] = new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight)));
+                track.cars.Add(new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight))));
                 //cars[i].rot = r.Next(0, 10000) * 0.003f;
             }
-            track = new Track();
+
+            maxframes = 300;
 
         }
 
@@ -190,8 +192,19 @@ namespace Car_Path_AI
         {
             kb_states.New = Keyboard.GetState();
             mo_states.New = Mouse.GetState();
+            if (kb_states.IsKeyToggleDown(Keys.Space))
+                IsPause ^= true;
 
-            track.Update();
+            if (!IsPause)
+            {
+                curframe++;
+                track.Update();
+            }
+            if (curframe > maxframes)
+            {
+                curframe = 0;
+                track.ResetCars();
+            }
 
            
 
@@ -215,8 +228,6 @@ namespace Car_Path_AI
 
             spriteBatch.Begin();
             
-            for (int i = 0; i < cars.Length; ++i)
-                cars[i].Draw(spriteBatch);
 
             track.Draw(spriteBatch);
             spriteBatch.End();

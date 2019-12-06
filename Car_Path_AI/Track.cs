@@ -11,7 +11,7 @@ namespace Car_Path_AI
 {
     public class Track
     {
-        List<Car> cars;
+        public List<Car> cars;
         Vector2 startpos, goalpos;
         float goalradius, startdir;
 
@@ -23,6 +23,7 @@ namespace Car_Path_AI
         public Track()
         {
             lines = new List<Line>();
+            cars = new List<Car>();
         }
 
         public void Update()
@@ -64,7 +65,6 @@ namespace Car_Path_AI
             {
                
             }
-        }
             // Simulate Cars
             for (int i = 0; i < cars.Count; ++i)
                 cars[i].Update();
@@ -80,6 +80,8 @@ namespace Car_Path_AI
 
         public void Draw(SpriteBatch spritebatch)
         {
+            for (int i = 0; i < cars.Count; ++i)
+                cars[i].Draw(spritebatch);
 
             if (IsDrawing)
             {
