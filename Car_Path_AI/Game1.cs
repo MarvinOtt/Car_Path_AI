@@ -82,12 +82,9 @@ namespace Car_Path_AI
         SpriteBatch spriteBatch;
         public static Random r;
 
-        public bool DrawingEnabled = true;
-        public bool IsDrawing;
-        Point posA, posB;
 
-        Track track;
-        public static List<Line> lines;
+        public static Track track;
+
         Car[] cars;
 
         public static Texture2D pixel;
@@ -164,7 +161,7 @@ namespace Car_Path_AI
 
         protected override void LoadContent()
         {
-            lines = new List<Line>();
+            
             r = new Random();
             pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Bgra32);
             Color[] colors = new Color[1];
@@ -196,40 +193,7 @@ namespace Car_Path_AI
 
             track.Update();
 
-            if (mo_states.New.LeftButton == ButtonState.Pressed)
-            {
-                
-                if (IsDrawing)
-                {
-
-                    //posB = mo_states.New.Position;
-                    Point dif = posA - mo_states.New.Position;
-
-                    if (dif.ToVector2().Length() > 20)
-                    {
-                        posB = mo_states.New.Position;
-                        lines.Add(new Line(posA, posB));
-                        posA = mo_states.New.Position;
-                    }
-                   
-                }
-                
-            }
-            if(mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
-            {
-                if(IsDrawing)
-                {
-                    posB = mo_states.New.Position;
-                    lines.Add(new Line(posA, posB));
-                }
-                posA = mo_states.New.Position;
-                IsDrawing = true;
-            }
-            if (mo_states.IsRightButtonToggleOn() && IsDrawing)
-            {
-
-                IsDrawing = false;
-            }
+           
 
 
             for (int i = 0; i < cars.Length; ++i)
@@ -250,19 +214,11 @@ namespace Car_Path_AI
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-
+            
             for (int i = 0; i < cars.Length; ++i)
                 cars[i].Draw(spriteBatch);
 
-            if (IsDrawing)
-            {
-                spriteBatch.DrawLine(posA.X, posA.Y, mo_states.New.Position.X, mo_states.New.Position.Y, Color.Black, 2);
-            }
             track.Draw(spriteBatch);
-            for(int i = 0; i < lines.Count; i++)
-            {
-                spriteBatch.DrawLine(lines[i].start.X,lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Red,3);
-            }
             spriteBatch.End();
 
             base.Draw(gameTime);

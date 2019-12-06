@@ -139,9 +139,9 @@ namespace Car_Path_AI
             Line l3 = new Line(v3.ToPoint(), v4.ToPoint());
             Line l4 = new Line(v4.ToPoint(), v1.ToPoint());
             bool IsIntersect = false;
-            for(int i = 0; i < Game1.lines.Count; ++i)
+            for(int i = 0; i < Game1.track.lines.Count; ++i)
             {
-                Line cur = Game1.lines[i];
+                Line cur = Game1.track.lines[i];
                 if(doIntersect(cur, l1) || doIntersect(cur, l2) || doIntersect(cur, l3) || doIntersect(cur, l4))
                 {
                     IsIntersect = true;
