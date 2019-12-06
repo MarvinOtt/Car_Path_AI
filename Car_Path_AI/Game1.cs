@@ -214,14 +214,17 @@ namespace Car_Path_AI
             }
             if(mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
             {
-                lines.Add(new Line(posA, posB));
                 if(IsDrawing)
-                posB = mo_states.New.Position;
+                {
+                    posB = mo_states.New.Position;
+                    lines.Add(new Line(posA, posB));
+                }
                 posA = mo_states.New.Position;
                 IsDrawing = true;
             }
             if (mo_states.IsRightButtonToggleOn() && IsDrawing)
             {
+
                 IsDrawing = false;
             }
 
