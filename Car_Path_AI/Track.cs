@@ -16,7 +16,17 @@ namespace Car_Path_AI
 
         public void Update()
         {
+            // Simulate Cars
+            for (int i = 0; i < cars.Count; ++i)
+                cars[i].Update();
+        }
 
+        public void ResetCars()
+        {
+            for(int i = 0; i < cars.Count; ++i)
+            {
+                cars[i].Reset(startpos, startdir);
+            }
         }
 
         public void Draw(SpriteBatch spritebatch)

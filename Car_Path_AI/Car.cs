@@ -15,11 +15,14 @@ namespace Car_Path_AI
         public const int CRASHED = 1;
         public const int FINISHED = 2;
 
+        bool IsIntersect = false;
         public Vector2 pos;
         public float speed, acl, rot;
         public int State;
         public int driving_time;
         public Matrix matr;
+        Vector2 v1, v2, v3, v4;
+        Line l1, l2, l3, l4;
 
         public static Texture2D tex;
 
@@ -29,6 +32,14 @@ namespace Car_Path_AI
             if (tex == null)
                 tex = Game1.content.Load<Texture2D>("CarTexture");
             this.pos = pos;
+        }
+
+        public void Reset(Vector2 pos, float rot)
+        {
+            this.pos = pos;
+            this.rot = rot;
+            speed = acl = driving_time = 0;
+            State = DRIVING;
         }
 
         public void Update()
@@ -58,6 +69,28 @@ namespace Car_Path_AI
                 speed += acl;
                 Vector2 dir = DirFromRotation(rot);
                 pos += dir * speed;
+
+                //Check Hitbox
+                Vector2 v = new Vector2(-40, -23);
+                v1 = pos + Vector2.Transform(v, matr);
+                v2 = pos + Vector2.Transform(v + new Vector2(117, 0), matr);
+                v3 = pos + Vector2.Transform(v + new Vector2(117, 46), matr);
+                v4 = pos + Vector2.Transform(v + new Vector2(0, 46), matr);
+
+                l1 = new Line(v1.ToPoint(), v2.ToPoint());
+                l2 = new Line(v2.ToPoint(), v3.ToPoint());
+                l3 = new Line(v3.ToPoint(), v4.ToPoint());
+                l4 = new Line(v4.ToPoint(), v1.ToPoint());
+                IsIntersect = false;
+                for (int i = 0; i < Game1.track.lines.Count; ++i)
+                {
+                    Line cur = Game1.lines[i];
+                    if (doIntersect(cur, l1) || doIntersect(cur, l2) || doIntersect(cur, l3) || doIntersect(cur, l4))
+                    {
+                        IsIntersect = true;
+                        break;
+                    }
+                }
             }
             //rot += 0.01f;
         }
@@ -128,26 +161,6 @@ namespace Car_Path_AI
             spritebatch.Draw(tex, new Rectangle(new Point((int)pos.X, (int)pos.Y), new Point(117, 46)), new Rectangle(0, 0, 117, 46), Color.White, (rot), new Vector2(40, 23), SpriteEffects.None, 0);
             //spritebatch.DrawFilledRectangle(new Rectangle((int)pos.X - 3, (int)pos.Y - 3, 6, 6), Color.Red);
 
-            Vector2 v = new Vector2(-40, -23);
-            Vector2 v1 = pos + Vector2.Transform(v, matr);
-            Vector2 v2 = pos + Vector2.Transform(v + new Vector2(117, 0), matr);
-            Vector2 v3 = pos + Vector2.Transform(v + new Vector2(117, 46), matr);
-            Vector2 v4 = pos + Vector2.Transform(v + new Vector2(0, 46), matr);
-
-            Line l1 = new Line(v1.ToPoint(), v2.ToPoint());
-            Line l2 = new Line(v2.ToPoint(), v3.ToPoint());
-            Line l3 = new Line(v3.ToPoint(), v4.ToPoint());
-            Line l4 = new Line(v4.ToPoint(), v1.ToPoint());
-            bool IsIntersect = false;
-            for(int i = 0; i < Game1.lines.Count; ++i)
-            {
-                Line cur = Game1.lines[i];
-                if(doIntersect(cur, l1) || doIntersect(cur, l2) || doIntersect(cur, l3) || doIntersect(cur, l4))
-                {
-                    IsIntersect = true;
-                    break;
-                }
-            }
             Color col = Color.Blue;
             if (IsIntersect)
                 col = Color.Green;

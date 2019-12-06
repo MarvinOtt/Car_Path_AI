@@ -232,8 +232,8 @@ namespace Car_Path_AI
             }
 
 
-            for (int i = 0; i < cars.Length; ++i)
-                cars[i].Update();
+            //for (int i = 0; i < cars.Length; ++i)
+            //    cars[i].Update();
 
 
             kb_states.Old = kb_states.New;
