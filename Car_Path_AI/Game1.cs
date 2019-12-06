@@ -86,6 +86,7 @@ namespace Car_Path_AI
         public bool IsDrawing;
         Point posA, posB;
 
+        Track track;
         public static List<Line> lines;
         Car[] cars;
 
@@ -170,12 +171,13 @@ namespace Car_Path_AI
             colors[0] = Color.White;
             pixel.SetData(colors);
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            cars = new Car[5];
+            cars = new Car[10];
             for(int i = 0; i < cars.Length; ++i)
             {
                 cars[i] = new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight)));
                 //cars[i].rot = r.Next(0, 10000) * 0.003f;
             }
+            track = new Track();
 
         }
 
@@ -192,6 +194,7 @@ namespace Car_Path_AI
             kb_states.New = Keyboard.GetState();
             mo_states.New = Mouse.GetState();
 
+            track.Update();
 
             if (mo_states.New.LeftButton == ButtonState.Pressed)
             {
@@ -252,9 +255,10 @@ namespace Car_Path_AI
             {
                 spriteBatch.DrawLine(posA.X, posA.Y, mo_states.New.Position.X, mo_states.New.Position.Y, Color.Black, 2);
             }
+            track.Draw(spriteBatch);
             for(int i = 0; i < lines.Count; i++)
             {
-                spriteBatch.DrawLine(lines[i].start.X,lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Black,2);
+                spriteBatch.DrawLine(lines[i].start.X,lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Red,3);
             }
             spriteBatch.End();
 

@@ -126,7 +126,7 @@ namespace Car_Path_AI
         public void Draw(SpriteBatch spritebatch)
         {
             spritebatch.Draw(tex, new Rectangle(new Point((int)pos.X, (int)pos.Y), new Point(117, 46)), new Rectangle(0, 0, 117, 46), Color.White, (rot), new Vector2(40, 23), SpriteEffects.None, 0);
-            spritebatch.DrawFilledRectangle(new Rectangle((int)pos.X - 3, (int)pos.Y - 3, 6, 6), Color.Red);
+            //spritebatch.DrawFilledRectangle(new Rectangle((int)pos.X - 3, (int)pos.Y - 3, 6, 6), Color.Red);
 
             Vector2 v = new Vector2(-40, -23);
             Vector2 v1 = pos + Vector2.Transform(v, matr);
