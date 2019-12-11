@@ -18,13 +18,17 @@ namespace Car_Path_AI
         public bool DrawingEnabled = true;
         public bool IsDrawing;
         Point posA, posB;
+        public NeuralNetwork RecentBeststeer, RecentBestspeed;
         public List<Line> lines;
-        Rectangle goal;
+        public Rectangle goal;
         public Track()
         {
             lines = new List<Line>();
             cars = new List<Car>();
-            goalradius = 45;
+            goalradius = 45; int[] nodeanz = new int[] { 2, 4, 4, 1 };
+            RecentBeststeer = new NeuralNetwork(nodeanz);
+            nodeanz = new int[] { 2, 5, 5, 1 };
+            RecentBestspeed = new NeuralNetwork(nodeanz);
         }
 
         public void UpdateIO()
@@ -133,8 +137,9 @@ namespace Car_Path_AI
                 }
             }
 
-
-            for(int i = 0; i < cars.Count; ++i)
+            cars[bestID].ste_network.CopyTo2(RecentBeststeer);
+            cars[bestID].gas_network.CopyTo2(RecentBestspeed);
+            for (int i = 0; i < cars.Count; ++i)
             {
                 if (i != bestID)
                 {

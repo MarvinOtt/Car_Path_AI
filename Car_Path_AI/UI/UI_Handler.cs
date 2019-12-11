@@ -38,6 +38,10 @@ namespace Car_Path_AI.UI
         public static Generic_Conf gen_conf;
 
         public UI_ValueInput valuebox_maxframes;
+        public static UI_StringButton SaveTrack;
+        public static UI_StringButton LoadTrack;
+        public static UI_StringButton SaveNetw;
+        public static UI_StringButton LoadNetw;
 
         public UI_Handler(ContentManager Content)
 	    {
@@ -52,16 +56,36 @@ namespace Car_Path_AI.UI
             gen_conf = new Generic_Conf(font_color: Color.White, behav: 2, BGColor: BackgroundColor, HoverColor: HoverColor, ActiveColor: ActivColor, ActiveHoverColor: ActivHoverColor, tex_color: Color.White);
             gen_conf.font = Game1.font;
 
-            valuebox_maxframes = new UI_ValueInput(new Pos(25, 25), new Point(100, 20), gen_conf, 1);
+            valuebox_maxframes = new UI_ValueInput(new Pos(10, 50), new Point(100, 20), gen_conf, 1);
 
-            
+            SaveTrack = new UI_StringButton(new Pos(10, 10), new Point(90, 20), "Save Track", true, gen_conf);
+            LoadTrack = new UI_StringButton(new Pos(10, 0, ORIGIN.TR, ORIGIN.DEFAULT, SaveTrack), new Point(90, 20), "Load Track", true, gen_conf);
+            SaveNetw = new UI_StringButton(new Pos(10, 0, ORIGIN.TR, ORIGIN.DEFAULT, LoadTrack), new Point(90, 20), "Save Netw", true, gen_conf);
+            LoadNetw = new UI_StringButton(new Pos(10, 0, ORIGIN.TR, ORIGIN.DEFAULT, SaveNetw), new Point(90, 20), "Load Netw", true, gen_conf);
+
 
             InitializeUISettings(spriteBatch);
         }
 
         public void InitializeUISettings(SpriteBatch spritebatch)
         {
-            
+            SaveTrack.GotActivatedLeft += delegate (object sender)
+            {
+                FileHandler.SaveTrack();
+            };
+            LoadTrack.GotActivatedLeft += delegate (object sender)
+            {
+                FileHandler.LoadTrack();
+            };
+            SaveNetw.GotActivatedLeft += delegate (object sender)
+            {
+                FileHandler.SaveNetw();
+            };
+            LoadNetw.GotActivatedLeft += delegate (object sender)
+            {
+                FileHandler.LoadNetw();
+            };
+
         }
 
         // Gets called when something of the Window or Graphics got changed
@@ -81,13 +105,24 @@ namespace Car_Path_AI.UI
                 //return;
             }
 
+            SaveTrack.UpdateMain();
+            LoadTrack.UpdateMain();
+            SaveNetw.UpdateMain();
+            LoadNetw.UpdateMain();
+
             valuebox_maxframes.UpdateMain();
 
         }
 
 	    public void Draw(SpriteBatch spritebatch)
 	    {
+
             valuebox_maxframes.Draw(spritebatch);
+
+            LoadNetw.Draw(spritebatch);
+            SaveNetw.Draw(spritebatch);
+            LoadTrack.Draw(spritebatch);
+            SaveTrack.Draw(spritebatch);
         }
     }
 }

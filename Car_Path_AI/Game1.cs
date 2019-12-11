@@ -91,7 +91,7 @@ namespace Car_Path_AI
         public static Track track;
         public int maxframes, curframe;
         public bool IsPause = true;
-        public float mutation_strength = 0.04f;
+        public static float mutation_strength = 0.04f;
 
         public static Texture2D pixel;
 

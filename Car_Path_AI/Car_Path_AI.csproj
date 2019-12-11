@@ -19,7 +19,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
     <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Car.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="FileHandler.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="NeuralNetwork.cs" />
     <Compile Include="Program.cs" />
