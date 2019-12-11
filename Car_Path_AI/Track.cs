@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Car_Path_AI.Extensions;
 
 namespace Car_Path_AI
 {
@@ -16,7 +17,7 @@ namespace Car_Path_AI
         public float goalradius, startdir;
 
         public bool DrawingEnabled = true;
-        public bool IsDrawing;
+        public bool IsDrawing, IsCancel;
         Point posA, posB;
         public NeuralNetwork RecentBeststeer, RecentBestspeed;
         public List<Line> lines;
@@ -33,6 +34,25 @@ namespace Car_Path_AI
 
         public void UpdateIO()
         {
+            if (!IsDrawing)
+            {
+
+                
+                if (Game1.mo_states.New.RightButton == ButtonState.Pressed && !IsCancel)
+                {
+                    for (int i = 0; i < lines.Count; i++)
+                    {
+                        if (FindDistanceToSegment(Game1.mo_states.New.Position.ToVector2(), lines[i].start.ToVector2(), lines[i].end.ToVector2()) < 20)
+                        {
+                            lines.RemoveAt(i);
+                            i--;
+                        }
+                    }
+                   
+                }
+                
+            }
+
             if (Game1.kb_states.New.IsKeyUp(Keys.LeftControl))
             {
                 if (Game1.mo_states.New.LeftButton == ButtonState.Pressed)
@@ -65,8 +85,11 @@ namespace Car_Path_AI
                 }
                 if (Game1.mo_states.IsRightButtonToggleOn() && IsDrawing)
                 {
+                    IsCancel = true;
                     IsDrawing = false;
                 }
+                if (Game1.mo_states.IsRightButtonToggleOff())
+                    IsCancel = false;
             }
             else
             {
