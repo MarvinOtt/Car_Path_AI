@@ -40,9 +40,9 @@ namespace Car_Path_AI
             if (tex == null)
                 tex = Game1.content.Load<Texture2D>("CarTexture");
             this.pos = pos;
-            int[] nodeanz = new int[] { 2, 4, 4, 1 };
+            int[] nodeanz = new int[] { 4, 4, 4, 1 }; //steering
             ste_network = new NeuralNetwork(nodeanz);
-            nodeanz = new int[] { 2, 5, 5, 1 };
+            nodeanz = new int[] { 3, 5, 5, 1 }; //gas
             gas_network = new NeuralNetwork(nodeanz);
             sens_dist = new float[20];
         }
@@ -122,18 +122,25 @@ namespace Car_Path_AI
 
                 ste_network.nodes[0][0].input = 1.0f - ((float)sens_dist_FL / sens_length);
                 ste_network.nodes[0][1].input = 1.0f - ((float)sens_dist_BL / sens_length);
+                ste_network.nodes[0][3].input = 1.0f - (float)sens_dist_F / (sens_length * 2);
+                ste_network.nodes[0][2].input = 1.0f - ((float)sens_dist_L / (sens_length * 2));
+
                 //ste_network.nodes[0][2].input = steering;
                 ste_network.Simulate();
                 float steeringL = ste_network.nodes[3][0].input;
 
                 ste_network.nodes[0][0].input = 1.0f - ((float)sens_dist_FR / sens_length);
                 ste_network.nodes[0][1].input = 1.0f - ((float)sens_dist_BR / sens_length);
+                ste_network.nodes[0][2].input = 1.0f - ((float)sens_dist_R / (sens_length * 2));
+                ste_network.nodes[0][3].input = 1.0f - (float)sens_dist_F / (sens_length * 2);
+
                 //ste_network.nodes[0][2].input = steering;
                 ste_network.Simulate();
                 float steeringR = ste_network.nodes[3][0].input;
 
                 gas_network.nodes[0][0].input = 1.0f;
                 gas_network.nodes[0][1].input = 1.0f - (((float)(sens_dist_FL + sens_dist_FR) * 0.5f) / sens_length);
+                gas_network.nodes[0][2].input = (float)sens_dist_F / (sens_length * 2);
 
                 gas_network.Simulate();
 
@@ -144,13 +151,13 @@ namespace Car_Path_AI
                 steering += steeringdif;
                 //steering += MathHelper.Clamp(steering_acl, -1, 1) * 0.05f;
                 steering = MathHelper.Clamp(steering, -1, 1);
-                acl = MathHelper.Clamp(acl, -5, 5);
+                acl = MathHelper.Clamp(acl, -15, 15);
                 rot += steering * 0.015f * speed;
                 speed = acl;// * 0.01f;
                 Vector2 dir = DirFromRotation(rot);
                 pos += dir * speed;
                 total_dist += (dir * speed).Length();
-                speed *= 0.99f;
+                speed *= 0.999f;
 
                 matr = Matrix.CreateRotationZ(rot);
                 Vector2 v = new Vector2(-40, -23);
@@ -173,16 +180,16 @@ namespace Car_Path_AI
                 //    sens_dist[i] = CalculateDist(pos, pos + curdir * sens_length, sens_length);
                 //}
 
-                //Vector2 dir_main = DirFromRotation(rot);
+                Vector2 dir_main = DirFromRotation(rot);
                 //Vector2 dir_FL = DirFromRotation(rot - 0.5f);
                 //Vector2 dir_FR = DirFromRotation(rot + 0.5f);
-                //Vector2 dir_L = DirFromRotation(rot - (float)Math.PI / 2);
-                //Vector2 dir_R = DirFromRotation(rot + (float)Math.PI / 2);
+                Vector2 dir_L = DirFromRotation(rot - (float)Math.PI / 2);
+                Vector2 dir_R = DirFromRotation(rot + (float)Math.PI / 2);
                 //sens_dist_FL = CalculateDist(v2, v2 + dir_FL * sens_length, sens_length);
                 //sens_dist_FR = CalculateDist(v3, v3 + dir_FR * sens_length, sens_length);
-                //sens_dist_L = CalculateDist(v5, v5 + dir_L * sens_length, sens_length);
-                //sens_dist_R = CalculateDist(v6, v6 + dir_R * sens_length, sens_length);
-                //sens_dist_F = CalculateDist(pos + dir_main * 77.0f, (pos + dir_main * 77.0f) + dir_main * sens_length, sens_length);
+                sens_dist_L = CalculateDist(v5, v5 + dir_L * sens_length * 2, sens_length * 2);
+                sens_dist_R = CalculateDist(v6, v6 + dir_R * sens_length * 2, sens_length * 2);
+                sens_dist_F = CalculateDist(pos + dir_main * 77.0f, (pos + dir_main * 77.0f) + dir_main * sens_length * 2, sens_length * 2);
 
 
                 //Check Hitbox
@@ -346,12 +353,12 @@ namespace Car_Path_AI
                 //    spritebatch.DrawLine(pos.ToPoint(), (pos + curdir * sens_dist[i]).ToPoint(), Color.Orange, 1);
                 //}
 
-                //Vector2 dir_main = DirFromRotation(rot);
+                Vector2 dir_main = DirFromRotation(rot);
                 //spritebatch.DrawLine(v2.ToPoint(), (v2 + DirFromRotation(rot - 0.5f) * sens_dist_FL).ToPoint(), Color.Orange, 1);
                 //spritebatch.DrawLine(v3.ToPoint(), (v3 + DirFromRotation(rot + 0.5f) * sens_dist_FR).ToPoint(), Color.Orange, 1);
-                //spritebatch.DrawLine(v5.ToPoint(), (v5 + DirFromRotation(rot - (float)Math.PI / 2) * sens_dist_L).ToPoint(), Color.Orange, 1);
-                //spritebatch.DrawLine(v6.ToPoint(), (v6 + DirFromRotation(rot + (float)Math.PI / 2) * sens_dist_R).ToPoint(), Color.Orange, 1);
-                //spritebatch.DrawLine((pos + dir_main * 77.0f).ToPoint(), ((pos + dir_main * 77.0f) + dir_main * sens_dist_F).ToPoint(), Color.Orange, 1);
+                spritebatch.DrawLine(v5.ToPoint(), (v5 + DirFromRotation(rot - (float)Math.PI / 2) * (float)sens_dist_L).ToPoint(), Color.Orange, 1);
+                spritebatch.DrawLine(v6.ToPoint(), (v6 + DirFromRotation(rot + (float)Math.PI / 2) * (float)sens_dist_R).ToPoint(), Color.Orange, 1);
+                spritebatch.DrawLine((pos + dir_main * 77.0f).ToPoint(), ((pos + dir_main * 77.0f) + dir_main * (float)sens_dist_F).ToPoint(), Color.Orange, 1);
             }
 
             //v = Vector2.Transform(v, matr);
