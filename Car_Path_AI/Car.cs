@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using static Car_Path_AI.Extensions;
+
 namespace Car_Path_AI
 {
     public class Car
@@ -15,15 +17,20 @@ namespace Car_Path_AI
         public const int CRASHED = 1;
         public const int FINISHED = 2;
 
-        NeuralNetwork network;
+        public static float sens_length = 200.0f;
+
+        public NeuralNetwork ste_network, gas_network;
         bool IsIntersect = false;
         public Vector2 pos;
-        public float speed, acl, rot, steering, steering_acl;
+        public float speed, acl, rot, steering, steering_acl, total_dist;
+        public double sens_dist_FL, sens_dist_FR, sens_dist_R, sens_dist_L, sens_dist_F, sens_dist_BL, sens_dist_BR;
+        public float[] sens_dist;
         public int State;
         public int driving_time;
         public Matrix matr;
-        Vector2 v1, v2, v3, v4;
+        Vector2 v1, v2, v3, v4, v5, v6;
         Line l1, l2, l3, l4;
+
 
         public static Texture2D tex;
 
@@ -33,16 +40,20 @@ namespace Car_Path_AI
             if (tex == null)
                 tex = Game1.content.Load<Texture2D>("CarTexture");
             this.pos = pos;
-            int[] nodeanz = new int[] { 4, 4, 4, 2 };
-            network = new NeuralNetwork(nodeanz);
+            int[] nodeanz = new int[] { 2, 4, 4, 1 };
+            ste_network = new NeuralNetwork(nodeanz);
+            nodeanz = new int[] { 2, 5, 5, 1 };
+            gas_network = new NeuralNetwork(nodeanz);
+            sens_dist = new float[20];
         }
 
         public void Reset(Vector2 pos, float rot)
         {
             this.pos = pos;
             this.rot = rot;
-            speed = acl = driving_time = 0;
-            steering = steering_acl = 0;
+            acl = driving_time = 0;
+            steering = steering_acl = total_dist = 0;
+            speed = 2.0f;
             State = DRIVING;
         }
 
@@ -74,33 +85,107 @@ namespace Car_Path_AI
 
 
 
-                network.nodes[0][0].input = speed;
-                network.nodes[0][1].input = steering;
-                network.nodes[0][2].input = 1;
-                network.nodes[0][3].input = -1;
+                //ste_network.nodes[0][0].input = speed;
+                //ste_network.nodes[0][2].input = 0;
+                //network.nodes[0][2].input = 1;
+                //network.nodes[0][3].input = -1;
+                //ste_network.nodes[0][0].input = 1.01f * (sens_dist_FL - sens_dist_FR) / sens_length;
+                //network.nodes[0][3].input = 1.0f - (sens_dist_FR / sens_length);
+                //ste_network.nodes[0][3].input = 1.0f / (1.0f + speed);
+                //ste_network.nodes[0][0].input = 1.00f * (sens_dist_L - sens_dist_R) / sens_length;
+                //network.nodes[0][6].input = 1.0f - (sens_dist_R / sens_length);
+                //network.nodes[0][5].input = 1.0f - (sens_dist_F / sens_length);
 
-                network.Simulate();
 
-                acl = network.nodes[3][0].input;
-                steering_acl = network.nodes[3][1].input;
 
-                steering += MathHelper.Clamp(steering_acl, -1, 1) * 0.03f;
+                //ste_network.nodes[0][0].input = 1.0f - (sens_dist_L / sens_length);
+                //ste_network.nodes[0][1].input = steering;
+                //for (int i = 0; i < 10; ++i)
+                //{
+                //    ste_network.nodes[0][2 + i].input = 1.0f - (sens_dist[i] / sens_length);
+                //}
+                //ste_network.Simulate();
+                //float steeringL = ste_network.nodes[3][0].input;
+
+                //ste_network.nodes[0][0].input = 1.0f - (sens_dist_R / sens_length);
+                //ste_network.nodes[0][1].input = steering;
+                //for (int i = 10; i < 20; ++i)
+                //{
+                //    ste_network.nodes[0][2 + i - 10].input = 1.0f - (sens_dist[i] / sens_length);// (sens_dist[i] - sens_dist[9 - i]) / sens_length;
+                //}
+                //ste_network.Simulate();
+                //float steeringR = ste_network.nodes[3][0].input;
+
+                //gas_network.nodes[0][0].input = speed;
+                //gas_network.nodes[0][1].input = 1.0f - (sens_dist_F / sens_length);
+                //gas_network.nodes[0][2].input = 1.0f - (((sens_dist_FL + sens_dist_FR) * 0.5f) / sens_length);
+
+                ste_network.nodes[0][0].input = 1.0f - ((float)sens_dist_FL / sens_length);
+                ste_network.nodes[0][1].input = 1.0f - ((float)sens_dist_BL / sens_length);
+                //ste_network.nodes[0][2].input = steering;
+                ste_network.Simulate();
+                float steeringL = ste_network.nodes[3][0].input;
+
+                ste_network.nodes[0][0].input = 1.0f - ((float)sens_dist_FR / sens_length);
+                ste_network.nodes[0][1].input = 1.0f - ((float)sens_dist_BR / sens_length);
+                //ste_network.nodes[0][2].input = steering;
+                ste_network.Simulate();
+                float steeringR = ste_network.nodes[3][0].input;
+
+                gas_network.nodes[0][0].input = 1.0f;
+                gas_network.nodes[0][1].input = 1.0f - (((float)(sens_dist_FL + sens_dist_FR) * 0.5f) / sens_length);
+
+                gas_network.Simulate();
+
+                acl = gas_network.nodes[3][0].input;
+                steering_acl = steeringR - steeringL;
+                float newsteering = MathHelper.Clamp(steering_acl, -1, 1);
+                float steeringdif = MathHelper.Clamp(newsteering - steering, -0.04f, 0.04f);
+                steering += steeringdif;
+                //steering += MathHelper.Clamp(steering_acl, -1, 1) * 0.05f;
                 steering = MathHelper.Clamp(steering, -1, 1);
-                acl = MathHelper.Clamp(acl, -1, 1);
-                rot += steering * 0.01f * speed;
-                speed += acl * 0.1f;
+                acl = MathHelper.Clamp(acl, -5, 5);
+                rot += steering * 0.015f * speed;
+                speed = acl;// * 0.01f;
                 Vector2 dir = DirFromRotation(rot);
                 pos += dir * speed;
+                total_dist += (dir * speed).Length();
+                speed *= 0.99f;
 
-
-
-                //Check Hitbox
                 matr = Matrix.CreateRotationZ(rot);
                 Vector2 v = new Vector2(-40, -23);
                 v1 = pos + Vector2.Transform(v, matr);
                 v2 = pos + Vector2.Transform(v + new Vector2(117, 0), matr);
                 v3 = pos + Vector2.Transform(v + new Vector2(117, 46), matr);
                 v4 = pos + Vector2.Transform(v + new Vector2(0, 46), matr);
+                v5 = pos + Vector2.Transform(v + new Vector2(80, 0), matr);
+                v6 = pos + Vector2.Transform(v + new Vector2(80, 46), matr);
+
+                sens_dist_FL = CalculateShortestDist(v2, sens_length);
+                sens_dist_FR = CalculateShortestDist(v3, sens_length);
+                sens_dist_BR = CalculateShortestDist(v4, sens_length);
+                sens_dist_BL = CalculateShortestDist(v1, sens_length);
+
+                //for (int i = 0; i < 20; ++i)
+                //{
+                //    float fac = (float)(Math.PI * 2.0f) / 10.0f;
+                //    Vector2 curdir = DirFromRotation(rot - 1.0f + i * 0.1f);
+                //    sens_dist[i] = CalculateDist(pos, pos + curdir * sens_length, sens_length);
+                //}
+
+                //Vector2 dir_main = DirFromRotation(rot);
+                //Vector2 dir_FL = DirFromRotation(rot - 0.5f);
+                //Vector2 dir_FR = DirFromRotation(rot + 0.5f);
+                //Vector2 dir_L = DirFromRotation(rot - (float)Math.PI / 2);
+                //Vector2 dir_R = DirFromRotation(rot + (float)Math.PI / 2);
+                //sens_dist_FL = CalculateDist(v2, v2 + dir_FL * sens_length, sens_length);
+                //sens_dist_FR = CalculateDist(v3, v3 + dir_FR * sens_length, sens_length);
+                //sens_dist_L = CalculateDist(v5, v5 + dir_L * sens_length, sens_length);
+                //sens_dist_R = CalculateDist(v6, v6 + dir_R * sens_length, sens_length);
+                //sens_dist_F = CalculateDist(pos + dir_main * 77.0f, (pos + dir_main * 77.0f) + dir_main * sens_length, sens_length);
+
+
+                //Check Hitbox
 
                 l1 = new Line(v1.ToPoint(), v2.ToPoint());
                 l2 = new Line(v2.ToPoint(), v3.ToPoint());
@@ -120,9 +205,41 @@ namespace Car_Path_AI
                 {
                     State = CRASHED;
                 }
+                if((pos - Game1.track.goalpos).Length() < Game1.track.goalradius)
+                {
+                    State = FINISHED;
+                }
                 
             }
             //rot += 0.01f;
+        }
+
+        public float CalculateDist(Vector2 s1, Vector2 e1, float maxlength)
+        {
+            float length = maxlength;
+            for (int i = 0; i < Game1.track.lines.Count; ++i)
+            {
+                Vector2 intersecpoint = FindIntersection(s1, e1, Game1.track.lines[i].start.ToVector2(), Game1.track.lines[i].end.ToVector2());
+                float dist = (intersecpoint - s1).Length();
+                if (dist < length)
+                {
+                    length = dist;
+                }
+            }
+            return length;
+        }
+        public double CalculateShortestDist(Vector2 s, double maxlength)
+        {
+            double length = maxlength;
+            for (int i = 0; i < Game1.track.lines.Count; ++i)
+            {
+                double dist = FindDistanceToSegment(s, Game1.track.lines[i].start.ToVector2(), Game1.track.lines[i].end.ToVector2());
+                if (dist < length)
+                {
+                    length = dist;
+                }
+            }
+            return length;
         }
 
         public static float RotationFromDir(Vector2 dir)
@@ -188,22 +305,54 @@ namespace Car_Path_AI
 
         public void Draw(SpriteBatch spritebatch)
         {
-            spritebatch.Draw(tex, new Rectangle(new Point((int)pos.X, (int)pos.Y), new Point(117, 46)), new Rectangle(0, 0, 117, 46), Color.White, (rot), new Vector2(40, 23), SpriteEffects.None, 0);
+            float trans = 1.0f;
+            if (State != 0)
+                trans = 0.2f;
+
+            spritebatch.Draw(tex, new Rectangle(new Point((int)pos.X, (int)pos.Y), new Point(117, 46)), new Rectangle(0, 0, 117, 46), Color.White * trans, (rot), new Vector2(40, 23), SpriteEffects.None, 0);
             //spritebatch.DrawFilledRectangle(new Rectangle((int)pos.X - 3, (int)pos.Y - 3, 6, 6), Color.Red);
 
             Color col = Color.Blue;
             if (IsIntersect)
                 col = Color.Green;
 
-            spritebatch.DrawFilledRectangle(new Rectangle((int)v1.X - 3, (int)v1.Y - 3, 6, 6), col);
-            spritebatch.DrawFilledRectangle(new Rectangle((int)v2.X - 3, (int)v2.Y - 3, 6, 6), col);
-            spritebatch.DrawFilledRectangle(new Rectangle((int)v3.X - 3, (int)v3.Y - 3, 6, 6), col);
-            spritebatch.DrawFilledRectangle(new Rectangle((int)v4.X - 3, (int)v4.Y - 3, 6, 6), col);
-            spritebatch.DrawLine(l1.start, l1.end, col, 3);
-            spritebatch.DrawLine(l2.start, l2.end, col, 3);
-            spritebatch.DrawLine(l3.start, l3.end, col, 3);
-            spritebatch.DrawLine(l4.start, l4.end, col, 3);
+            //spritebatch.DrawFilledRectangle(new Rectangle((int)v1.X - 3, (int)v1.Y - 3, 6, 6), col);
+            //spritebatch.DrawFilledRectangle(new Rectangle((int)v2.X - 3, (int)v2.Y - 3, 6, 6), col);
+            //spritebatch.DrawFilledRectangle(new Rectangle((int)v3.X - 3, (int)v3.Y - 3, 6, 6), col);
+            //spritebatch.DrawFilledRectangle(new Rectangle((int)v4.X - 3, (int)v4.Y - 3, 6, 6), col);
+            //spritebatch.DrawLine(l1.start, l1.end, col, 3);
+            //spritebatch.DrawLine(l2.start, l2.end, col, 3);
+            //spritebatch.DrawLine(l3.start, l3.end, col, 3);
+            //spritebatch.DrawLine(l4.start, l4.end, col, 3);
+            if (State == 0)
+            {
+                //for (int i = 0; i < 10; ++i)
+                //{
+                //    float fac = (float)(Math.PI * 2.0f) / 10.0f;
+                //    Vector2 curdir = DirFromRotation(rot + i * fac);
+                //    sens_dist[i] = CalculateDist(pos, pos + curdir * sens_length, sens_length);
+                //    spritebatch.DrawLine(pos.ToPoint(), (pos + curdir * sens_dist[i]).ToPoint(), Color.Orange, 1);
+                //}
 
+                Game1.basiceffect.DrawCircle(v2, (float)sens_dist_FL);
+                Game1.basiceffect.DrawCircle(v3, (float)sens_dist_FR);
+                Game1.basiceffect.DrawCircle(v4, (float)sens_dist_BR);
+                Game1.basiceffect.DrawCircle(v1, (float)sens_dist_BL);
+
+                //for (int i = 0; i < 20; ++i)
+                //{
+                //    float fac = (float)(Math.PI * 2.0f) / 10.0f;
+                //    Vector2 curdir = DirFromRotation(rot - 1.0f + i * 0.1f);
+                //    spritebatch.DrawLine(pos.ToPoint(), (pos + curdir * sens_dist[i]).ToPoint(), Color.Orange, 1);
+                //}
+
+                //Vector2 dir_main = DirFromRotation(rot);
+                //spritebatch.DrawLine(v2.ToPoint(), (v2 + DirFromRotation(rot - 0.5f) * sens_dist_FL).ToPoint(), Color.Orange, 1);
+                //spritebatch.DrawLine(v3.ToPoint(), (v3 + DirFromRotation(rot + 0.5f) * sens_dist_FR).ToPoint(), Color.Orange, 1);
+                //spritebatch.DrawLine(v5.ToPoint(), (v5 + DirFromRotation(rot - (float)Math.PI / 2) * sens_dist_L).ToPoint(), Color.Orange, 1);
+                //spritebatch.DrawLine(v6.ToPoint(), (v6 + DirFromRotation(rot + (float)Math.PI / 2) * sens_dist_R).ToPoint(), Color.Orange, 1);
+                //spritebatch.DrawLine((pos + dir_main * 77.0f).ToPoint(), ((pos + dir_main * 77.0f) + dir_main * sens_dist_F).ToPoint(), Color.Orange, 1);
+            }
 
             //v = Vector2.Transform(v, matr);
         }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Car_Path_AI.UI;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -78,14 +79,19 @@ namespace Car_Path_AI
         public static ContentManager content;
         public static System.Windows.Forms.Form form;
         public static event EventHandler GraphicsChanged;
-        GraphicsDeviceManager graphics;
+        public static GraphicsDeviceManager graphics;
+        public static SpriteFont font;
         SpriteBatch spriteBatch;
         public static Random r;
+        UI_Handler ui_handler;
+        public static BasicEffect basiceffect;
+        public static VertexPositionColor[] circle_vertices;
 
 
         public static Track track;
         public int maxframes, curframe;
         public bool IsPause = true;
+        public float mutation_strength = 0.04f;
 
         public static Texture2D pixel;
 
@@ -114,6 +120,7 @@ namespace Car_Path_AI
 
             };
             graphics.PreparingDeviceSettings += new EventHandler<PreparingDeviceSettingsEventArgs>(SetToPreserve);
+            //TargetElapsedTime = new TimeSpan(0, 0, 0, 0, 6);
             IsFixedTimeStep = false;
             Window.IsBorderless = false;
 
@@ -136,6 +143,10 @@ namespace Car_Path_AI
         {
             Screenwidth = graphics.PreferredBackBufferWidth;
             Screenheight = graphics.PreferredBackBufferHeight;
+            basiceffect.Projection = Matrix.CreateOrthographicOffCenter
+            (0, GraphicsDevice.Viewport.Width,     // left, right
+            GraphicsDevice.Viewport.Height, 0,    // bottom, top
+            0, 1);
         }
         void SetToPreserve(object sender, PreparingDeviceSettingsEventArgs eventargs) { eventargs.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents; }
         void GetsMinimized(object sender, System.Windows.Forms.FormClosingEventArgs e)
@@ -154,7 +165,21 @@ namespace Car_Path_AI
             form.Resize += Window_ClientSizeChanged;
             form.FormClosing += GetsMinimized;
             form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            basiceffect = new BasicEffect(GraphicsDevice);
+            basiceffect.VertexColorEnabled = true;
+            basiceffect.Projection = Matrix.CreateOrthographicOffCenter
+            (0, GraphicsDevice.Viewport.Width,     // left, right
+            GraphicsDevice.Viewport.Height, 0,    // bottom, top
+            0, 1);
             GraphicsChanged(null, EventArgs.Empty);
+
+            
+            circle_vertices = new VertexPositionColor[360];
+            float fac = (1.0f / (circle_vertices.Length - 1)) * (float)Math.PI * 2;
+            for(int i = 0; i < circle_vertices.Length; ++i)
+            {
+                circle_vertices[i] = new VertexPositionColor(new Vector3((float)Math.Cos(fac * i), (float)Math.Sin(fac * i), 0), Color.Orange);
+            }
 
             base.Initialize();
         }
@@ -164,25 +189,35 @@ namespace Car_Path_AI
             
             r = new Random();
             pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Bgra32);
+            font = Content.Load<SpriteFont>("font");
             Color[] colors = new Color[1];
             colors[0] = Color.White;
             pixel.SetData(colors);
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            ui_handler = new UI_Handler(Content);
+            ui_handler.Initialize(spriteBatch);
+            ui_handler.valuebox_maxframes.ValueChanged += MaxFramesChange;
             track = new Track();
+            track.GenerateNew(20);
+            //for (int i = 0; i < 10; ++i)
+            //{
+            //    track.cars.Add(new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight))));
+            //    //cars[i].rot = r.Next(0, 10000) * 0.003f;
+            //}
 
-            for (int i = 0; i < 10; ++i)
-            {
-                track.cars.Add(new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight))));
-                //cars[i].rot = r.Next(0, 10000) * 0.003f;
-            }
-
-            maxframes = 300;
+            maxframes = 600;
 
         }
 
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+        }
+
+        public void MaxFramesChange(object sender)
+        {
+            UI_ValueInput obj = sender as UI_ValueInput;
+            maxframes = obj.final_value;
         }
 
    
@@ -192,28 +227,49 @@ namespace Car_Path_AI
         {
             kb_states.New = Keyboard.GetState();
             mo_states.New = Mouse.GetState();
-            if (kb_states.IsKeyToggleDown(Keys.Space))
-                IsPause ^= true;
-
-            track.UpdateIO();
-            if (!IsPause)
+            if (IsActive)
             {
-                curframe++;
-                track.Update();
+                ui_handler.Update();
+
+                if (kb_states.New.IsKeyDown(Keys.Down))
+                    mutation_strength -= 0.0001f;
+                if (kb_states.New.IsKeyDown(Keys.Up))
+                    mutation_strength += 0.0001f;
+                if (kb_states.IsKeyToggleDown(Keys.Space))
+                    IsPause ^= true;
+                if (kb_states.IsKeyToggleDown(Keys.R))
+                {
+                    curframe = 0;
+                    track.GenerateNew(60);
+                }
+
+                if (UI_Handler.UI_Active_State == 0)
+                {
+                    track.UpdateIO();
+                }
+                if (!IsPause)
+                {
+                    curframe++;
+                    track.Update();
+                }
+                bool allDone = track.cars.TrueForAll(x => x.State > 0);
+                if (curframe > maxframes || allDone)
+                {
+                    curframe = 0;
+                    track.ResetCars(mutation_strength);
+                }
+
+                if (GraphicsNeedApplyChanges)
+                {
+                    graphics.ApplyChanges();
+                    GraphicsNeedApplyChanges = false;
+                    if (Screenwidth != 0 && Screenheight != 0)
+                        GraphicsChanged(null, EventArgs.Empty);
+                }
+                //for (int i = 0; i < cars.Length; ++i)
+                //    cars[i].Update();
+
             }
-            if (curframe > maxframes)
-            {
-                curframe = 0;
-                track.ResetCars();
-            }
-
-           
-
-
-            //for (int i = 0; i < cars.Length; ++i)
-            //    cars[i].Update();
-
-
             kb_states.Old = kb_states.New;
             mo_states.Old = mo_states.New;
             base.Update(gameTime);
@@ -231,7 +287,13 @@ namespace Car_Path_AI
             
 
             track.Draw(spriteBatch);
+
+            spriteBatch.DrawString(font, mutation_strength.ToString(), new Vector2(100, 100), Color.Red);
+            spriteBatch.DrawString(font, curframe.ToString() + " / " + maxframes.ToString(), new Vector2(100, 130), Color.Red);
+
+            ui_handler.Draw(spriteBatch);
             spriteBatch.End();
+            //basiceffect.DrawCircle(Vector2.Zero, 100);
 
             base.Draw(gameTime);
         }

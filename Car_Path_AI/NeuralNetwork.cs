@@ -16,7 +16,7 @@ namespace Car_Path_AI
             input = 0;
             strengths = new float[strength_count];
             for (int i = 0; i < strength_count; ++i)
-                strengths[i] = Game1.r.Next(-10000, 10000) * 0.0001f;
+                strengths[i] = (float)Game1.r.Next(-10000, 10000) * 0.0001f;
         }
     }
 
@@ -74,17 +74,21 @@ namespace Car_Path_AI
                 {
                     for (int k = 0; k < nodes[i + 1].Length; ++k)
                     {
-                        nodes[i][j].strengths[k] += (Game1.r.Next(-10000, 10000) * 0.0001f) * strength;
+                        nodes[i][j].strengths[k] += ((float)Game1.r.Next(-10000, 10000) * 0.0001f) * strength;
                     }
                 }
             }
         }
 
-        public void CopyTo(NeuralNetwork dest)
+        public void CopyTo2(NeuralNetwork dest)
         {
             for(int i = 0; i < layer_count; ++i)
             {
-                Array.Copy(nodes[i], dest.nodes[i], nodes[i].Length);
+                for (int j = 0; j < nodes[i].Length; ++j)
+                {
+                    if(nodes[i][j].strengths != null)
+                        Array.Copy(nodes[i][j].strengths, dest.nodes[i][j].strengths, nodes[i][j].strengths.Length);
+                }
             }
         }
     }
