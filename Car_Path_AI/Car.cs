@@ -40,6 +40,7 @@ namespace Car_Path_AI
             if (tex == null)
                 tex = Game1.content.Load<Texture2D>("CarTexture");
             this.pos = pos;
+            
             int[] nodeanz = new int[] { 4, 4, 4, 1 }; //steering
             ste_network = new NeuralNetwork(nodeanz);
             nodeanz = new int[] { 3, 5, 5, 1 }; //gas

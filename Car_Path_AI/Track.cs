@@ -26,9 +26,10 @@ namespace Car_Path_AI
         {
             lines = new List<Line>();
             cars = new List<Car>();
-            goalradius = 45; int[] nodeanz = new int[] { 2, 4, 4, 1 };
+            goalradius = 50;
+            int[] nodeanz = new int[] { 4, 4, 4, 1 }; //steering
             RecentBeststeer = new NeuralNetwork(nodeanz);
-            nodeanz = new int[] { 2, 5, 5, 1 };
+            nodeanz = new int[] { 3, 5, 5, 1 }; //gas
             RecentBestspeed = new NeuralNetwork(nodeanz);
         }
 
