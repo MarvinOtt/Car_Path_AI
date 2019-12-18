@@ -188,8 +188,8 @@ namespace Car_Path_AI
                 Vector2 dir_R = DirFromRotation(rot + (float)Math.PI / 2);
                 //sens_dist_FL = CalculateDist(v2, v2 + dir_FL * sens_length, sens_length);
                 //sens_dist_FR = CalculateDist(v3, v3 + dir_FR * sens_length, sens_length);
-                sens_dist_L = CalculateDist(v5, v5 + dir_L * sens_length * 2, sens_length * 2);
-                sens_dist_R = CalculateDist(v6, v6 + dir_R * sens_length * 2, sens_length * 2);
+                sens_dist_L = CalculateDist(v2, v2 + dir_L * sens_length * 2, sens_length * 2);
+                sens_dist_R = CalculateDist(v3, v3 + dir_R * sens_length * 2, sens_length * 2);
                 sens_dist_F = CalculateDist(pos + dir_main * 77.0f, (pos + dir_main * 77.0f) + dir_main * sens_length * 2, sens_length * 2);
 
 
@@ -357,8 +357,8 @@ namespace Car_Path_AI
                 Vector2 dir_main = DirFromRotation(rot);
                 //spritebatch.DrawLine(v2.ToPoint(), (v2 + DirFromRotation(rot - 0.5f) * sens_dist_FL).ToPoint(), Color.Orange, 1);
                 //spritebatch.DrawLine(v3.ToPoint(), (v3 + DirFromRotation(rot + 0.5f) * sens_dist_FR).ToPoint(), Color.Orange, 1);
-                spritebatch.DrawLine(v5.ToPoint(), (v5 + DirFromRotation(rot - (float)Math.PI / 2) * (float)sens_dist_L).ToPoint(), Color.Orange, 1);
-                spritebatch.DrawLine(v6.ToPoint(), (v6 + DirFromRotation(rot + (float)Math.PI / 2) * (float)sens_dist_R).ToPoint(), Color.Orange, 1);
+                spritebatch.DrawLine(v2.ToPoint(), (v2 + DirFromRotation(rot - (float)Math.PI / 2) * (float)sens_dist_L).ToPoint(), Color.Orange, 1);
+                spritebatch.DrawLine(v3.ToPoint(), (v3 + DirFromRotation(rot + (float)Math.PI / 2) * (float)sens_dist_R).ToPoint(), Color.Orange, 1);
                 spritebatch.DrawLine((pos + dir_main * 77.0f).ToPoint(), ((pos + dir_main * 77.0f) + dir_main * (float)sens_dist_F).ToPoint(), Color.Orange, 1);
             }
 
