@@ -128,7 +128,7 @@ namespace Car_Path_AI
                 if (!(Math.Abs(-m1 * x + y - c1) < tolerance
                     && Math.Abs(-m2 * x + y - c2) < tolerance))
                 {
-                    return default(Vector2);
+                    return new Vector2(100000);
                 }
             }
 
@@ -141,7 +141,7 @@ namespace Car_Path_AI
             }
 
             //return default null (no intersection)
-            return default(Vector2);
+            return new Vector2(100000);
 
         }
 
