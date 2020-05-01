@@ -175,8 +175,7 @@ namespace Car_Path_AI
         {
             // Get best Car
             int bestID = 0;
-
-            float bestDist = -9999.0f;
+			float bestDist = -9999.0f;
             float bestdrivingtime = 9999999;
             //bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
             //if(IsFinished)
@@ -196,36 +195,51 @@ namespace Car_Path_AI
             {
                 for (int i = 0; i < cars[0].Count; ++i)
                 {
-
+					float averagedist = 0;
 					for(int j = 0; j < Game1.maxcars; ++j)
 					{
-
+						averagedist += cars[j][i].total_dist;
 					}
-                    if (cars[i].total_dist > bestDist)
+					averagedist /= (float)Game1.maxcars;
+                    if (averagedist > bestDist)
                     {
-                        bestDist = cars[i].total_dist;
+                        bestDist = averagedist;
                         bestID = i;
                     }
                 }
             }
 
-            cars[bestID].ste_network.CopyTo2(RecentBeststeer);
-            cars[bestID].gas_network.CopyTo2(RecentBestspeed);
-            for (int i = 0; i < cars.Count; ++i)
+            cars[0][bestID].ste_network.CopyTo2(RecentBeststeer);
+            cars[0][bestID].gas_network.CopyTo2(RecentBestspeed);
+            for (int i = 0; i < cars[0].Count; ++i)
             {
                 if (i != bestID)
                 {
-                    cars[bestID].ste_network.CopyTo2(cars[i].ste_network);
-                    cars[bestID].gas_network.CopyTo2(cars[i].gas_network);
-                    cars[i].ste_network.Mutate(mutation_strength);
-                    cars[i].gas_network.Mutate(mutation_strength);
+					for (int j = 0; j < Game1.maxcars; ++j)
+					{
+						cars[j][bestID].ste_network.CopyTo2(cars[j][i].ste_network);
+						cars[j][bestID].gas_network.CopyTo2(cars[j][i].gas_network);
+						cars[j][i].ste_network.Mutate(mutation_strength);
+						cars[j][i].gas_network.Mutate(mutation_strength);
+					}
                 }
             }
+			for (int i = 0; i < cars[0].Count; ++i)
+			{
+				for (int j = 1; j < Game1.maxcars; ++j)
+				{
+					cars[0][i].ste_network.CopyTo2(cars[j][i].ste_network);
+					cars[0][i].gas_network.CopyTo2(cars[j][i].gas_network);
+				}
+			}
 
-            for (int i = 0; i < cars.Count; ++i)
-            {
-                cars[i].Reset(startpos, startdir);
-            }
+			for (int j = 0; j < Game1.maxcars; ++j)
+			{
+				for (int i = 0; i < cars[j].Count; ++i)
+				{
+					cars[j][i].Reset(startpos[j], startdir[j]);
+				}
+			}
         }
 
         
@@ -290,9 +304,6 @@ namespace Car_Path_AI
                 spritebatch.DrawHollowRectangle(new Rectangle(startpos[i].ToPoint() - new Point(4), new Point(8)), Color.Bisque, 2);
                 spritebatch.DrawLine(startpos[i].ToPoint(), (Car.DirFromRotation(startdir[i]) * 50).ToPoint() + startpos[i].ToPoint(), Color.Wheat);
             }
-
-
-
 
         }
 
