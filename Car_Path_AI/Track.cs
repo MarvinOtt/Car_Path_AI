@@ -136,6 +136,7 @@ namespace Car_Path_AI
         {
             // Get best Car
             int bestID = 0;
+
             float bestDist = -9999.0f;
             float bestdrivingtime = 9999999;
             bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
