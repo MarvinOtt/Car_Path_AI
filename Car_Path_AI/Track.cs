@@ -16,6 +16,8 @@ namespace Car_Path_AI
         public Vector2 startpos, goalpos;
         public float goalradius, startdir;
 
+
+        public int curbestID;
         public bool DrawingEnabled = true;
         public bool IsDrawing, IsCancel;
         Point posA, posB;
@@ -27,9 +29,9 @@ namespace Car_Path_AI
             lines = new List<Line>();
             cars = new List<Car>();
             goalradius = 50;
-            int[] nodeanz = new int[] { 4, 4, 4, 1 }; //steering
+            int[] nodeanz = new int[] { 4, 5, 5, 5, 1 }; //steering
             RecentBeststeer = new NeuralNetwork(nodeanz);
-            nodeanz = new int[] { 3, 5, 5, 1 }; //gas
+            nodeanz = new int[] { 3, 4, 4, 1 }; //gas
             RecentBestspeed = new NeuralNetwork(nodeanz);
         }
 
@@ -56,6 +58,16 @@ namespace Car_Path_AI
 
             if (Game1.kb_states.New.IsKeyUp(Keys.LeftControl))
             {
+                if (Game1.mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
+                {
+                    if (IsDrawing)
+                    {
+                        posB = Game1.mo_states.New.Position;
+                        lines.Add(new Line(posA, posB));
+                    }
+                    posA = Game1.mo_states.New.Position;
+                    IsDrawing = true;
+                }
                 if (Game1.mo_states.New.LeftButton == ButtonState.Pressed)
                 {
 
@@ -74,16 +86,7 @@ namespace Car_Path_AI
                     }
 
                 }
-                if (Game1.mo_states.IsLeftButtonToggleOn() && DrawingEnabled)
-                {
-                    if (IsDrawing)
-                    {
-                        posB = Game1.mo_states.New.Position;
-                        lines.Add(new Line(posA, posB));
-                    }
-                    posA = Game1.mo_states.New.Position;
-                    IsDrawing = true;
-                }
+               
                 if (Game1.mo_states.IsRightButtonToggleOn() && IsDrawing)
                 {
                     IsCancel = true;
@@ -133,8 +136,8 @@ namespace Car_Path_AI
         {
             // Get best Car
             int bestID = 0;
-            float bestDist = -9999999.0f;
-            int bestdrivingtime = 9999999;
+            float bestDist = -9999.0f;
+            float bestdrivingtime = 9999999;
             bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
             if(IsFinished)
             {
@@ -143,7 +146,7 @@ namespace Car_Path_AI
                 {
                     if (curcars[i].driving_time < bestdrivingtime)
                     {
-                        bestdrivingtime = curcars[i].driving_time;
+                        bestdrivingtime = curcars[i].driving_time - curcars[i].penalty_points;
                         bestID = i;
                     }
                 }
@@ -184,8 +187,43 @@ namespace Car_Path_AI
 
         public void Draw(SpriteBatch spritebatch)
         {
+            int bestID = 0;
+            float bestDist = -9999.0f;
+            float bestdrivingtime = 9999999;
+            bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
+            if (IsFinished)
+            {
+                Car[] curcars = cars.Where(x => x.State == Car.FINISHED).ToArray();
+                for (int i = 0; i < curcars.Length; ++i)
+                {
+                    if (curcars[i].driving_time < bestdrivingtime)
+                    {
+                        bestdrivingtime = curcars[i].driving_time - curcars[i].penalty_points;
+                        bestID = i;
+                    }
+                }
+                bestID = cars.IndexOf(curcars[bestID]);
+            }
+            else
+            {
+                for (int i = 0; i < cars.Count; ++i)
+                {
+                    if (cars[i].total_dist > bestDist)
+                    {
+                        bestDist = cars[i].total_dist;
+                        bestID = i;
+                    }
+                }
+            }
+            curbestID = bestID;
+
             for (int i = 0; i < cars.Count; ++i)
-                cars[i].Draw(spritebatch);
+            {
+                bool IsBest = false;
+                if (i == curbestID)
+                    IsBest = true;
+                cars[i].Draw(spritebatch, IsBest);
+            }
 
             if (IsDrawing)
             {
@@ -194,6 +232,8 @@ namespace Car_Path_AI
             for (int i = 0; i < lines.Count; i++)
             {
                 spritebatch.DrawLine(lines[i].start.X, lines[i].start.Y, lines[i].end.X, lines[i].end.Y, Color.Red, 3);
+                spritebatch.DrawFilledRectangle(new Rectangle(lines[i].start, new Point(2)), Color.Red);
+                spritebatch.DrawFilledRectangle(new Rectangle(lines[i].end, new Point(2)), Color.Red);
             }
             spritebatch.DrawFilledRectangle(goal, Color.Chartreuse);
             spritebatch.DrawHollowRectangle(new Rectangle(startpos.ToPoint() - new Point(4), new Point(8)), Color.Bisque, 2);
