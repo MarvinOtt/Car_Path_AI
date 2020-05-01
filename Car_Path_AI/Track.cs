@@ -12,7 +12,7 @@ namespace Car_Path_AI
 {
     public class Track
     {
-        public List<Car> cars;
+        public List<Car>[] cars;
         public Vector2[] startpos, goalpos;
         public float[] startdir;
         public float goalradius;
@@ -28,7 +28,7 @@ namespace Car_Path_AI
         public Track()
         {
             lines = new List<Line>();
-            cars = new List<Car>();
+            cars = new List<Car>[Game1.maxcars];
             startpos = new Vector2[1];
             goalpos = new Vector2[1];
 
@@ -143,21 +143,25 @@ namespace Car_Path_AI
             }
         }
 
-        public void Update()
-        {
-            // Simulate Cars
-            for (int i = 0; i < cars.Count; ++i)
-                cars[i].Update();
+		public void Update()
+		{
+			// Simulate Cars
+			for (int j = 0; j < Game1.maxcars; ++j)
+				for (int i = 0; i < cars[j].Count; ++i)
+					cars[j][i].Update();
         }
 
         public void GenerateNew(int num)
         {
-            cars.Clear();
+			for (int j = 0; j < Game1.maxcars; ++j)
+				cars[j].Clear();
             for (int i = 0; i < num; ++i)
             {
-                cars.Add(new Car(startpos));
-                cars[i].rot = startdir;
-                //cars[i].rot = r.Next(0, 10000) * 0.003f;
+				for (int j = 0; j < Game1.maxcars; ++j)
+				{
+					cars[j].Add(new Car(startpos));
+					cars[j][i].rot = startdir;
+				}
             }
         }
 
@@ -165,6 +169,7 @@ namespace Car_Path_AI
         {
             // Get best Car
             int bestID = 0;
+
             float bestDist = -9999.0f;
             float bestdrivingtime = 9999999;
             bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);

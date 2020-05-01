@@ -37,7 +37,7 @@ namespace Car_Path_AI.UI
         public static Color[] layer_colors;
         public static Generic_Conf gen_conf;
 
-        public UI_ValueInput valuebox_maxframes;
+        public UI_ValueInput valuebox_maxframes, valuebox_goalsandstarts;
         public static UI_StringButton SaveTrack;
         public static UI_StringButton LoadTrack;
         public static UI_StringButton SaveNetw;
@@ -57,8 +57,10 @@ namespace Car_Path_AI.UI
             gen_conf.font = Game1.font;
 
             valuebox_maxframes = new UI_ValueInput(new Pos(10, 50), new Point(100, 20), gen_conf, 1);
-
-            SaveTrack = new UI_StringButton(new Pos(10, 10), new Point(90, 20), "Save Track", true, gen_conf);
+			valuebox_maxframes.value = "9999";
+			valuebox_goalsandstarts = new UI_ValueInput(new Pos(120, 50), new Point(100, 20), gen_conf, 1);
+			valuebox_maxframes.value = "2";
+			SaveTrack = new UI_StringButton(new Pos(10, 10), new Point(90, 20), "Save Track", true, gen_conf);
             LoadTrack = new UI_StringButton(new Pos(10, 0, ORIGIN.TR, ORIGIN.DEFAULT, SaveTrack), new Point(90, 20), "Load Track", true, gen_conf);
             SaveNetw = new UI_StringButton(new Pos(10, 0, ORIGIN.TR, ORIGIN.DEFAULT, LoadTrack), new Point(90, 20), "Save Netw", true, gen_conf);
             LoadNetw = new UI_StringButton(new Pos(10, 0, ORIGIN.TR, ORIGIN.DEFAULT, SaveNetw), new Point(90, 20), "Load Netw", true, gen_conf);
@@ -111,13 +113,14 @@ namespace Car_Path_AI.UI
             LoadNetw.UpdateMain();
 
             valuebox_maxframes.UpdateMain();
+			valuebox_goalsandstarts.UpdateMain();
 
-        }
+		}
 
 	    public void Draw(SpriteBatch spritebatch)
 	    {
-
-            valuebox_maxframes.Draw(spritebatch);
+			valuebox_goalsandstarts.Draw(spritebatch);
+			valuebox_maxframes.Draw(spritebatch);
 
             LoadNetw.Draw(spritebatch);
             SaveNetw.Draw(spritebatch);

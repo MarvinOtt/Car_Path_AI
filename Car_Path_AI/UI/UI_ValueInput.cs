@@ -16,7 +16,7 @@ namespace Car_Path_AI.UI
         public Generic_Conf conf;
 
         public int final_value;
-        string value = "";
+        public string value = "";
         bool IsTyping;
         int inputtype;
         Rectangle hitbox;

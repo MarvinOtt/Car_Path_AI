@@ -89,7 +89,7 @@ namespace Car_Path_AI
 
 
         public static Track track;
-        public int maxframes, curframe;
+        public static int maxframes, curframe, maxcars;
         public bool IsPause = true;
         public static float mutation_strength = 0.04f;
 
@@ -197,15 +197,17 @@ namespace Car_Path_AI
             ui_handler = new UI_Handler(Content);
             ui_handler.Initialize(spriteBatch);
             ui_handler.valuebox_maxframes.ValueChanged += MaxFramesChange;
-            track = new Track();
-            track.GenerateNew(20);
+			ui_handler.valuebox_goalsandstarts.ValueChanged += MaxCarsChange;
+			track = new Track();
+            track.GenerateNew(10);
             //for (int i = 0; i < 10; ++i)
             //{
             //    track.cars.Add(new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight))));
             //    //cars[i].rot = r.Next(0, 10000) * 0.003f;
             //}
 
-            maxframes = 600;
+            maxframes = 9999;
+			maxcars = 2;
 
         }
 
@@ -220,10 +222,19 @@ namespace Car_Path_AI
             maxframes = obj.final_value;
         }
 
-   
+		public void MaxCarsChange(object sender)
+		{
+			UI_ValueInput obj = sender as UI_ValueInput;
+			maxcars = obj.final_value;
 
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
+			track.cars = new List<Car>[maxcars];
+
+		}
+
+
+
+		/// <param name="gameTime">Provides a snapshot of timing values.</param>
+		protected override void Update(GameTime gameTime)
         {
             kb_states.New = Keyboard.GetState();
             mo_states.New = Mouse.GetState();
@@ -240,7 +251,7 @@ namespace Car_Path_AI
                 if (kb_states.IsKeyToggleDown(Keys.R))
                 {
                     curframe = 0;
-                    track.GenerateNew(60);
+                    track.GenerateNew(10);
                 }
 
                 if (UI_Handler.UI_Active_State == 0)
@@ -281,7 +292,7 @@ namespace Car_Path_AI
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
 
             spriteBatch.Begin();
             
