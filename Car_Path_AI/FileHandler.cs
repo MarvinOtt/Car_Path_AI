@@ -62,11 +62,11 @@ namespace Car_Path_AI
                             stream.Write(BitConverter.GetBytes(track.lines[i].end.Y), 0, 4);
                         }
 
-                        stream.Write(BitConverter.GetBytes(track.startpos.X), 0, 4);
+                       /* stream.Write(BitConverter.GetBytes(track.startpos.X), 0, 4);
                         stream.Write(BitConverter.GetBytes(track.startpos.Y), 0, 4);
                         stream.Write(BitConverter.GetBytes(track.startdir), 0, 4);
                         stream.Write(BitConverter.GetBytes(track.goalpos.X), 0, 4);
-                        stream.Write(BitConverter.GetBytes(track.goalpos.Y), 0, 4);
+                        stream.Write(BitConverter.GetBytes(track.goalpos.Y), 0, 4);*/
 
                         
                         #endregion
@@ -132,18 +132,18 @@ namespace Car_Path_AI
                         int eY = BitConverter.ToInt32(intbuffer, 0);
                         Game1.track.lines.Add(new Line(new Point(sX, sY), new Point(eX, eY)));
                     }
-                    stream.Read(intbuffer, 0, 4);
-                    Game1.track.startpos.X = BitConverter.ToSingle(intbuffer, 0);
-                    stream.Read(intbuffer, 0, 4);
-                    Game1.track.startpos.Y = BitConverter.ToSingle(intbuffer, 0);
-                    stream.Read(intbuffer, 0, 4);
-                    Game1.track.startdir = BitConverter.ToSingle(intbuffer, 0);
-                    stream.Read(intbuffer, 0, 4);
-                    Game1.track.goalpos.X = BitConverter.ToSingle(intbuffer, 0);
-                    stream.Read(intbuffer, 0, 4);
-                    Game1.track.goalpos.Y = BitConverter.ToSingle(intbuffer, 0);
+                    //stream.Read(intbuffer, 0, 4);
+                    //Game1.track.startpos.X = BitConverter.ToSingle(intbuffer, 0);
+                    //stream.Read(intbuffer, 0, 4);
+                    //Game1.track.startpos.Y = BitConverter.ToSingle(intbuffer, 0);
+                    //stream.Read(intbuffer, 0, 4);
+                    //Game1.track.startdir = BitConverter.ToSingle(intbuffer, 0);
+                    //stream.Read(intbuffer, 0, 4);
+                    //Game1.track.goalpos.X = BitConverter.ToSingle(intbuffer, 0);
+                    //stream.Read(intbuffer, 0, 4);
+                    //Game1.track.goalpos.Y = BitConverter.ToSingle(intbuffer, 0);
 
-                    Game1.track.goal = new Rectangle(new Point((int)Game1.track.goalpos.X - 15, (int)Game1.track.goalpos.Y - 15), new Point(30));
+                    //Game1.track.goal = new Rectangle(new Point((int)Game1.track.goalpos.X - 15, (int)Game1.track.goalpos.Y - 15), new Point(30));
 
 
                     stream.Close();
@@ -306,14 +306,14 @@ namespace Car_Path_AI
 
                     }
 
-                    for(int i = 0; i < track.cars.Count; i++)
-                    {
-                        track.cars[i].Reset(track.startpos, track.startdir);
-                        track.RecentBeststeer.CopyTo2(track.cars[i].ste_network);
-                        track.RecentBestspeed.CopyTo2(track.cars[i].gas_network);
-                        track.cars[i].ste_network.Mutate(Game1.mutation_strength);
-                        track.cars[i].gas_network.Mutate(Game1.mutation_strength);
-                    }
+                    //for(int i = 0; i < track.cars.Count; i++)
+                    //{
+                    //    track.cars[i].Reset(track.startpos, track.startdir);
+                    //    track.RecentBeststeer.CopyTo2(track.cars[i].ste_network);
+                    //    track.RecentBestspeed.CopyTo2(track.cars[i].gas_network);
+                    //    track.cars[i].ste_network.Mutate(Game1.mutation_strength);
+                    //    track.cars[i].gas_network.Mutate(Game1.mutation_strength);
+                    //}
                     
 
                     stream.Close();

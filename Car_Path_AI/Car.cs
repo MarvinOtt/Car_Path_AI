@@ -235,10 +235,10 @@ namespace Car_Path_AI
                 {
                     State = CRASHED;
                 }
-                if((pos - Game1.track.goalpos).Length() < Game1.track.goalradius)
-                {
-                    State = FINISHED;
-                }
+                //if((pos - Game1.track.goalpos).Length() < Game1.track.goalradius)
+                //{
+                //    State = FINISHED;
+                //}
                 
             }
             //rot += 0.01f;
