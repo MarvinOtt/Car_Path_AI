@@ -246,43 +246,46 @@ namespace Car_Path_AI
     
         public void Draw(SpriteBatch spritebatch)
         {
-           /* int bestID = 0;
-            float bestDist = -9999.0f;
-            float bestdrivingtime = 9999999;
-            bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
-            if (IsFinished)
+            /* int bestID = 0;
+             float bestDist = -9999.0f;
+             float bestdrivingtime = 9999999;
+             bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
+             if (IsFinished)
+             {
+                 Car[] curcars = cars.Where(x => x.State == Car.FINISHED).ToArray();
+                 for (int i = 0; i < curcars.Length; ++i)
+                 {
+                     if (curcars[i].driving_time < bestdrivingtime)
+                     {
+                         bestdrivingtime = curcars[i].driving_time - curcars[i].penalty_points;
+                         bestID = i;
+                     }
+                 }
+                 bestID = cars.IndexOf(curcars[bestID]);
+             }
+             else
+             {
+                 for (int i = 0; i < cars.Count; ++i)
+                 {
+                     if (cars[i].total_dist > bestDist)
+                     {
+                         bestDist = cars[i].total_dist;
+                         bestID = i;
+                     }
+                 }
+             }
+             curbestID = bestID;
+             */
+            for (int j = 0; j < Game1.maxcars; ++j)
             {
-                Car[] curcars = cars.Where(x => x.State == Car.FINISHED).ToArray();
-                for (int i = 0; i < curcars.Length; ++i)
+                for (int i = 0; i < cars[j].Count; ++i)
                 {
-                    if (curcars[i].driving_time < bestdrivingtime)
-                    {
-                        bestdrivingtime = curcars[i].driving_time - curcars[i].penalty_points;
-                        bestID = i;
-                    }
-                }
-                bestID = cars.IndexOf(curcars[bestID]);
-            }
-            else
-            {
-                for (int i = 0; i < cars.Count; ++i)
-                {
-                    if (cars[i].total_dist > bestDist)
-                    {
-                        bestDist = cars[i].total_dist;
-                        bestID = i;
-                    }
+                    bool IsBest = false;
+                    if (i == curbestID)
+                        IsBest = true;
+                    cars[j][i].Draw(spritebatch, IsBest);
                 }
             }
-            curbestID = bestID;
-
-            for (int i = 0; i < cars.Count; ++i)
-            {
-                bool IsBest = false;
-                if (i == curbestID)
-                    IsBest = true;
-                cars[i].Draw(spritebatch, IsBest);
-            }*/
             //Zeichnen der Linien
             if (IsDrawing)
             {
