@@ -198,7 +198,7 @@ namespace Car_Path_AI
             ui_handler.Initialize(spriteBatch);
             ui_handler.valuebox_maxframes.ValueChanged += MaxFramesChange;
             track = new Track();
-            track.GenerateNew(20);
+            track.GenerateNew(10);
             //for (int i = 0; i < 10; ++i)
             //{
             //    track.cars.Add(new Car(new Vector2(r.Next(0, Screenwidth), r.Next(0, Screenheight))));
@@ -240,7 +240,7 @@ namespace Car_Path_AI
                 if (kb_states.IsKeyToggleDown(Keys.R))
                 {
                     curframe = 0;
-                    track.GenerateNew(60);
+                    track.GenerateNew(10);
                 }
 
                 if (UI_Handler.UI_Active_State == 0)
@@ -281,7 +281,7 @@ namespace Car_Path_AI
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
 
             spriteBatch.Begin();
             
