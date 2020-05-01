@@ -59,7 +59,7 @@ namespace Car_Path_AI.UI
             valuebox_maxframes = new UI_ValueInput(new Pos(10, 50), new Point(100, 20), gen_conf, 1);
 			valuebox_maxframes.value = "9999";
 			valuebox_goalsandstarts = new UI_ValueInput(new Pos(120, 50), new Point(100, 20), gen_conf, 1);
-			valuebox_maxframes.value = "2";
+            valuebox_goalsandstarts.value = "2";
 			SaveTrack = new UI_StringButton(new Pos(10, 10), new Point(90, 20), "Save Track", true, gen_conf);
             LoadTrack = new UI_StringButton(new Pos(10, 0, ORIGIN.TR, ORIGIN.DEFAULT, SaveTrack), new Point(90, 20), "Load Track", true, gen_conf);
             SaveNetw = new UI_StringButton(new Pos(10, 0, ORIGIN.TR, ORIGIN.DEFAULT, LoadTrack), new Point(90, 20), "Save Netw", true, gen_conf);

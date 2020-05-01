@@ -29,8 +29,14 @@ namespace Car_Path_AI
         {
             lines = new List<Line>();
             cars = new List<Car>[Game1.maxcars];
+            for(int j = 0; j < Game1.maxcars; ++j)
+            {
+                cars[j] = new List<Car>();
+            }
             startpos = new Vector2[Game1.maxcars];
+            startdir = new float[Game1.maxcars];
             goalpos = new Vector2[Game1.maxcars];
+            goal = new Rectangle[Game1.maxcars];
 
             goalradius = 50;
             int[] nodeanz = new int[] { 4, 5, 5, 5, 1 }; //steering
@@ -172,8 +178,8 @@ namespace Car_Path_AI
 
             float bestDist = -9999.0f;
             float bestdrivingtime = 9999999;
-            bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
-            if(IsFinished)
+          //  bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
+          /*  if(IsFinished)
             {
                 Car[] curcars = cars.Where(x => x.State == Car.FINISHED).ToArray();
                 for (int i = 0; i < curcars.Length; ++i)
@@ -214,14 +220,14 @@ namespace Car_Path_AI
             for (int i = 0; i < cars.Count; ++i)
             {
                 cars[i].Reset(startpos, startdir);
-            }
+            }*/
         }
 
         
-
+    
         public void Draw(SpriteBatch spritebatch)
         {
-            int bestID = 0;
+           /* int bestID = 0;
             float bestDist = -9999.0f;
             float bestdrivingtime = 9999999;
             bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
@@ -257,7 +263,7 @@ namespace Car_Path_AI
                 if (i == curbestID)
                     IsBest = true;
                 cars[i].Draw(spritebatch, IsBest);
-            }
+            }*/
             //Zeichnen der Linien
             if (IsDrawing)
             {
@@ -269,9 +275,16 @@ namespace Car_Path_AI
                 spritebatch.DrawFilledRectangle(new Rectangle(lines[i].start, new Point(2)), Color.Red);
                 spritebatch.DrawFilledRectangle(new Rectangle(lines[i].end, new Point(2)), Color.Red);
             }
-            spritebatch.DrawFilledRectangle(goal, Color.Chartreuse);
-            spritebatch.DrawHollowRectangle(new Rectangle(startpos.ToPoint() - new Point(4), new Point(8)), Color.Bisque, 2);
-            spritebatch.DrawLine(startpos.ToPoint(), (Car.DirFromRotation(startdir) * 50).ToPoint() + startpos.ToPoint(), Color.Wheat);
+            for(int i = 0; i < goal.Length; i++)
+            {
+                spritebatch.DrawFilledRectangle(goal[i], Color.Chartreuse);
+
+            }
+            for (int i = 0; i < startpos.Length; i++)
+            {
+                spritebatch.DrawHollowRectangle(new Rectangle(startpos[i].ToPoint() - new Point(4), new Point(8)), Color.Bisque, 2);
+                spritebatch.DrawLine(startpos[i].ToPoint(), (Car.DirFromRotation(startdir[i]) * 50).ToPoint() + startpos[i].ToPoint(), Color.Wheat);
+            }
 
 
 

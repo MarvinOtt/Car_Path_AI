@@ -186,7 +186,8 @@ namespace Car_Path_AI
 
         protected override void LoadContent()
         {
-            
+            maxframes = 9999;
+            maxcars = 2;
             r = new Random();
             pixel = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Bgra32);
             font = Content.Load<SpriteFont>("font");
@@ -206,8 +207,6 @@ namespace Car_Path_AI
             //    //cars[i].rot = r.Next(0, 10000) * 0.003f;
             //}
 
-            maxframes = 9999;
-			maxcars = 2;
 
         }
 
@@ -263,7 +262,8 @@ namespace Car_Path_AI
                     curframe++;
                     track.Update();
                 }
-                bool allDone = track.cars.TrueForAll(x => x.State > 0);
+                bool allDone = Array.TrueForAll(track.cars, x => x.TrueForAll(y => y.State > 0));
+                //bool allDone = track.cars.
                 if (curframe > maxframes || allDone)
                 {
                     curframe = 0;
