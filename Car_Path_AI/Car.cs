@@ -184,12 +184,6 @@ namespace Car_Path_AI
                 sens_dist_BR = CalculateShortestDist(v4, sens_length);
                 sens_dist_BL = CalculateShortestDist(v1, sens_length);
 
-                for (int i = 0; i < 10; ++i)
-                {
-                    float fac = (float)(Math.PI * 2.0f) / 10.0f;
-                    Vector2 curdir = DirFromRotation(rot - 1.0f + i * 0.2f);
-                    sens_dist[i] = CalculateDist(pos, pos + curdir * 1000, 1000);
-                }
                 float mindist = 20.0f;
                 float fac = 2.0f;
                 if (sens_dist_FL < mindist)
@@ -389,7 +383,7 @@ namespace Car_Path_AI
                 //spritebatch.DrawLine(v3.ToPoint(), (v3 + DirFromRotation(rot + 0.5f) * sens_dist_FR).ToPoint(), Color.Orange, 1);
                 spritebatch.DrawLine(v2.ToPoint(), (v2 + DirFromRotation(rot - (float)Math.PI / 2) * (float)sens_dist_L).ToPoint(), Color.Orange, 1);
                 spritebatch.DrawLine(v3.ToPoint(), (v3 + DirFromRotation(rot + (float)Math.PI / 2) * (float)sens_dist_R).ToPoint(), Color.Orange, 1);
-                spritebatch.DrawLine((pos + dir_main * 77.0f).ToPoint(), ((pos + dir_main * 77.0f) + dir_main * (float)sens_dist_F).ToPoint(), Color.Orange, 1);
+                //spritebatch.DrawLine((pos + dir_main * 77.0f).ToPoint(), ((pos + dir_main * 77.0f) + dir_main * (float)sens_dist_F).ToPoint(), Color.Orange, 1);
                 //spritebatch.DrawLine((v2).ToPoint(), ((v2) + dir_main * (float)sens_dist_F).ToPoint(), Color.Orange, 1);
                 //spritebatch.DrawLine((v3).ToPoint(), ((v3) + dir_main * (float)sens_dist_F).ToPoint(), Color.Orange, 1);
                 spritebatch.DrawLine((v2).ToPoint(), ((v2) + dir_main * (float)sens_dist_FFL).ToPoint(), Color.Orange, 1);
