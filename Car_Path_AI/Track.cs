@@ -13,8 +13,9 @@ namespace Car_Path_AI
     public class Track
     {
         public List<Car> cars;
-        public Vector2 startpos, goalpos;
-        public float goalradius, startdir;
+        public Vector2[] startpos, goalpos;
+        public float[] startdir;
+        public float goalradius;
 
 
         public int curbestID;
@@ -23,11 +24,14 @@ namespace Car_Path_AI
         Point posA, posB;
         public NeuralNetwork RecentBeststeer, RecentBestspeed;
         public List<Line> lines;
-        public Rectangle goal;
+        public Rectangle[] goal;
         public Track()
         {
             lines = new List<Line>();
             cars = new List<Car>();
+            startpos = new Vector2[1];
+            goalpos = new Vector2[1];
+
             goalradius = 50;
             int[] nodeanz = new int[] { 4, 5, 5, 5, 1 }; //steering
             RecentBeststeer = new NeuralNetwork(nodeanz);
@@ -97,20 +101,45 @@ namespace Car_Path_AI
             }
             else
             {
-                if (Game1.mo_states.IsLeftButtonToggleOn())
+                int ID = -1;
+                for (int i = 0; i < 8; ++i)
                 {
-                    startpos = Game1.mo_states.New.Position.ToVector2();
+                    if(Game1.kb_states.New.IsKeyDown(Keys.D1 + i))
+                    {
+                        ID = i;
+                        break;
+                    }
                 }
-                else if (Game1.mo_states.IsLeftButtonToggleOff())
+                if(ID >= 0)
                 {
-                    Vector2 dir = Game1.mo_states.New.Position.ToVector2() - startpos;
-                    startdir = Car.RotationFromDir(Vector2.Normalize(dir));
+                    if (Game1.mo_states.IsLeftButtonToggleOn())
+                    {
+                        startpos[ID] = Game1.mo_states.New.Position.ToVector2();
+                    }
+                    else if (Game1.mo_states.IsLeftButtonToggleOff())
+                    {
+                        Vector2 dir = Game1.mo_states.New.Position.ToVector2() - startpos[ID];
+                        startdir[ID] = Car.RotationFromDir(Vector2.Normalize(dir));
+                    }
                 }
+                
             }
             if (Game1.mo_states.IsMiddleButtonToggleOff())
             {
-                goal = new Rectangle(new Point(Game1.mo_states.New.Position.X - 15, Game1.mo_states.New.Position.Y - 15), new Point(30));
-                goalpos = goal.Location.ToVector2() + new Vector2(15);
+                int ID = -1;
+                for (int i = 0; i < 8; ++i)
+                {
+                    if (Game1.kb_states.New.IsKeyDown(Keys.D1 + i))
+                    {
+                        ID = i;
+                        break;
+                    }
+                }
+                if (ID >= 0)
+                {
+                    goal = new Rectangle(new Point(Game1.mo_states.New.Position.X - 15, Game1.mo_states.New.Position.Y - 15), new Point(30));
+                    goalpos[ID] = goal.Location.ToVector2() + new Vector2(15);
+                }
             }
         }
 
@@ -224,7 +253,7 @@ namespace Car_Path_AI
                     IsBest = true;
                 cars[i].Draw(spritebatch, IsBest);
             }
-
+            //Zeichnen der Linien
             if (IsDrawing)
             {
                 spritebatch.DrawLine(posA.X, posA.Y, Game1.mo_states.New.Position.X, Game1.mo_states.New.Position.Y, Color.Black, 2);

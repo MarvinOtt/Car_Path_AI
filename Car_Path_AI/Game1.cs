@@ -288,8 +288,8 @@ namespace Car_Path_AI
 
             track.Draw(spriteBatch);
 
-            spriteBatch.DrawString(font, mutation_strength.ToString(), new Vector2(100, 100), Color.Red);
-            spriteBatch.DrawString(font, curframe.ToString() + " / " + maxframes.ToString(), new Vector2(100, 130), Color.Red);
+            spriteBatch.DrawString(font, "Mutation: " + mutation_strength.ToString(), new Vector2(15, 100), Color.Red);
+            spriteBatch.DrawString(font, "Frame: " + curframe.ToString() + " / " + maxframes.ToString(), new Vector2(15, 130), Color.Red);
 
             ui_handler.Draw(spriteBatch);
             spriteBatch.End();
