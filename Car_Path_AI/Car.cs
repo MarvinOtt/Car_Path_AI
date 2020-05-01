@@ -25,7 +25,7 @@ namespace Car_Path_AI
         public float speed, acl, rot, steering, steering_acl, total_dist, penalty_points;
         public double sens_dist_FL, sens_dist_FR, sens_dist_R, sens_dist_L, sens_dist_BL, sens_dist_BR, sens_dist_FFL, sens_dist_FFR;
         public float[] sens_dist;
-        public int State;
+        public int State, group;
         public int driving_time;
         public Matrix matr;
         Vector2 v1, v2, v3, v4, v5, v6, wp_FL, wp_FR, wp_BL, wp_BR;
@@ -35,7 +35,7 @@ namespace Car_Path_AI
         public static Texture2D tex, tiretex;
 
 
-        public Car(Vector2 pos)
+        public Car(Vector2 pos, int group)
         {
             if (tex == null)
                 tex = Game1.content.Load<Texture2D>("CarTexture");
@@ -48,6 +48,7 @@ namespace Car_Path_AI
             nodeanz = new int[] { 3, 4, 4, 1 }; //gas
             gas_network = new NeuralNetwork(nodeanz);
             sens_dist = new float[20];
+			this.group = group;
         }
 
         public void Reset(Vector2 pos, float rot)
@@ -235,14 +236,14 @@ namespace Car_Path_AI
                 {
                     State = CRASHED;
                 }
-                //if((pos - Game1.track.goalpos).Length() < Game1.track.goalradius)
-                //{
-                //    State = FINISHED;
-                //}
-                
-            }
-            //rot += 0.01f;
-        }
+				if ((pos - Game1.track.goalpos[group]).Length() < Game1.track.goalradius)
+				{
+					State = FINISHED;
+				}
+
+			}
+			//rot += 0.01f;
+		}
 
         public float CalculateDist(Vector2 s1, Vector2 e1, float maxlength)
         {
