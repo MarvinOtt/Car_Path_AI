@@ -172,24 +172,29 @@ namespace Car_Path_AI
 
             float bestDist = -9999.0f;
             float bestdrivingtime = 9999999;
-            bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
-            if(IsFinished)
+            //bool IsFinished = cars.Exists(x => x.State == Car.FINISHED);
+            //if(IsFinished)
+            //{
+            //    Car[] curcars = cars.Where(x => x.State == Car.FINISHED).ToArray();
+            //    for (int i = 0; i < curcars.Length; ++i)
+            //    {
+            //        if (curcars[i].driving_time < bestdrivingtime)
+            //        {
+            //            bestdrivingtime = curcars[i].driving_time - curcars[i].penalty_points;
+            //            bestID = i;
+            //        }
+            //    }
+            //    bestID = cars.IndexOf(curcars[bestID]);
+            //}
+            if(true)
             {
-                Car[] curcars = cars.Where(x => x.State == Car.FINISHED).ToArray();
-                for (int i = 0; i < curcars.Length; ++i)
+                for (int i = 0; i < cars[0].Count; ++i)
                 {
-                    if (curcars[i].driving_time < bestdrivingtime)
-                    {
-                        bestdrivingtime = curcars[i].driving_time - curcars[i].penalty_points;
-                        bestID = i;
-                    }
-                }
-                bestID = cars.IndexOf(curcars[bestID]);
-            }
-            else
-            {
-                for (int i = 0; i < cars.Count; ++i)
-                {
+
+					for(int j = 0; j < Game1.maxcars; ++j)
+					{
+
+					}
                     if (cars[i].total_dist > bestDist)
                     {
                         bestDist = cars[i].total_dist;
