@@ -29,8 +29,8 @@ namespace Car_Path_AI
         {
             lines = new List<Line>();
             cars = new List<Car>[Game1.maxcars];
-            startpos = new Vector2[1];
-            goalpos = new Vector2[1];
+            startpos = new Vector2[Game1.maxcars];
+            goalpos = new Vector2[Game1.maxcars];
 
             goalradius = 50;
             int[] nodeanz = new int[] { 4, 5, 5, 5, 1 }; //steering
@@ -137,8 +137,8 @@ namespace Car_Path_AI
                 }
                 if (ID >= 0)
                 {
-                    goal = new Rectangle(new Point(Game1.mo_states.New.Position.X - 15, Game1.mo_states.New.Position.Y - 15), new Point(30));
-                    goalpos[ID] = goal.Location.ToVector2() + new Vector2(15);
+                    goal[ID] = new Rectangle(new Point(Game1.mo_states.New.Position.X - 15, Game1.mo_states.New.Position.Y - 15), new Point(30));
+                    goalpos[ID] = goal[ID].Location.ToVector2() + new Vector2(15);
                 }
             }
         }
@@ -159,8 +159,8 @@ namespace Car_Path_AI
             {
 				for (int j = 0; j < Game1.maxcars; ++j)
 				{
-					cars[j].Add(new Car(startpos));
-					cars[j][i].rot = startdir;
+					cars[j].Add(new Car(startpos[j]));
+					cars[j][i].rot = startdir[j];
 				}
             }
         }
