@@ -165,7 +165,7 @@ namespace Car_Path_AI
             {
 				for (int j = 0; j < Game1.maxcars; ++j)
 				{
-					cars[j].Add(new Car(startpos[j]));
+					cars[j].Add(new Car(startpos[j], j));
 					cars[j][i].rot = startdir[j];
 				}
             }
