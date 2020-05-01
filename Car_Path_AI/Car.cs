@@ -25,7 +25,7 @@ namespace Car_Path_AI
         public float speed, acl, rot, steering, steering_acl, total_dist, penalty_points;
         public double sens_dist_FL, sens_dist_FR, sens_dist_R, sens_dist_L, sens_dist_BL, sens_dist_BR, sens_dist_FFL, sens_dist_FFR;
         public float[] sens_dist;
-        public int State, group;
+        public int State, group, ID;
         public int driving_time;
         public Matrix matr;
         Vector2 v1, v2, v3, v4, v5, v6, wp_FL, wp_FR, wp_BL, wp_BR;
@@ -35,7 +35,7 @@ namespace Car_Path_AI
         public static Texture2D tex, tiretex;
 
 
-        public Car(Vector2 pos, int group)
+        public Car(Vector2 pos, int group, int ID)
         {
             if (tex == null)
                 tex = Game1.content.Load<Texture2D>("CarTexture");
@@ -49,6 +49,7 @@ namespace Car_Path_AI
             gas_network = new NeuralNetwork(nodeanz);
             sens_dist = new float[20];
 			this.group = group;
+			this.ID = ID;
         }
 
         public void Reset(Vector2 pos, float rot)
@@ -232,6 +233,34 @@ namespace Car_Path_AI
                         break;
                     }
                 }
+
+				for(int j = 0; j < Game1.maxcars; ++j)
+				{
+					if(j != group)
+					{
+						if (doIntersect(Game1.track.cars[j][ID].l1, l1) || doIntersect(Game1.track.cars[j][ID].l1, l2) || doIntersect(Game1.track.cars[j][ID].l1, l3) || doIntersect(Game1.track.cars[j][ID].l1, l4))
+						{
+							IsIntersect = true;
+							break;
+						}
+						if (doIntersect(Game1.track.cars[j][ID].l2, l1) || doIntersect(Game1.track.cars[j][ID].l2, l2) || doIntersect(Game1.track.cars[j][ID].l2, l3) || doIntersect(Game1.track.cars[j][ID].l2, l4))
+						{
+							IsIntersect = true;
+							break;
+						}
+						if (doIntersect(Game1.track.cars[j][ID].l3, l1) || doIntersect(Game1.track.cars[j][ID].l3, l2) || doIntersect(Game1.track.cars[j][ID].l3, l3) || doIntersect(Game1.track.cars[j][ID].l3, l4))
+						{
+							IsIntersect = true;
+							break;
+						}
+						if (doIntersect(Game1.track.cars[j][ID].l4, l1) || doIntersect(Game1.track.cars[j][ID].l4, l2) || doIntersect(Game1.track.cars[j][ID].l4, l3) || doIntersect(Game1.track.cars[j][ID].l4, l4))
+						{
+							IsIntersect = true;
+							break;
+						}
+					}
+				}
+
                 if(IsIntersect)
                 {
                     State = CRASHED;
@@ -245,19 +274,37 @@ namespace Car_Path_AI
 			//rot += 0.01f;
 		}
 
-        public float CalculateDist(Vector2 s1, Vector2 e1, float maxlength)
+        public double CalculateDist(Vector2 s1, Vector2 e1, float maxlength)
         {
-            float length = maxlength;
+            double length = maxlength;
             for (int i = 0; i < Game1.track.lines.Count; ++i)
             {
                 Vector2 intersecpoint = FindIntersection(s1, e1, Game1.track.lines[i].start.ToVector2(), Game1.track.lines[i].end.ToVector2());
-                float dist = (intersecpoint - s1).Length();
+                double dist = (intersecpoint - s1).Length();
                 if (dist < length)
                 {
                     length = dist;
                 }
             }
-            return length;
+			for (int j = 0; j < Game1.maxcars; ++j)
+			{
+				if (j != group)
+				{
+					double dist = (FindIntersection(s1, e1, Game1.track.cars[j][ID].l1.start.ToVector2(), Game1.track.cars[j][ID].l1.end.ToVector2()) - s1).Length();
+					if (dist < length)
+						length = dist;
+					dist = (FindIntersection(s1, e1, Game1.track.cars[j][ID].l2.start.ToVector2(), Game1.track.cars[j][ID].l2.end.ToVector2()) - s1).Length();
+					if (dist < length)
+						length = dist;
+					dist = (FindIntersection(s1, e1, Game1.track.cars[j][ID].l3.start.ToVector2(), Game1.track.cars[j][ID].l3.end.ToVector2()) - s1).Length();
+					if (dist < length)
+						length = dist;
+					dist = (FindIntersection(s1, e1, Game1.track.cars[j][ID].l4.start.ToVector2(), Game1.track.cars[j][ID].l4.end.ToVector2()) - s1).Length();
+					if (dist < length)
+						length = dist;
+				}
+			}
+			return length;
         }
         public double CalculateShortestDist(Vector2 s, double maxlength)
         {
@@ -270,7 +317,25 @@ namespace Car_Path_AI
                     length = dist;
                 }
             }
-            return length;
+			for (int j = 0; j < Game1.maxcars; ++j)
+			{
+				if (j != group)
+				{
+					double dist = FindDistanceToSegment(s, Game1.track.cars[j][ID].l1.start.ToVector2(), Game1.track.cars[j][ID].l1.end.ToVector2());
+					if (dist < length)
+						length = dist;
+					dist = FindDistanceToSegment(s, Game1.track.cars[j][ID].l2.start.ToVector2(), Game1.track.cars[j][ID].l2.end.ToVector2());
+					if (dist < length)
+						length = dist;
+					dist = FindDistanceToSegment(s, Game1.track.cars[j][ID].l3.start.ToVector2(), Game1.track.cars[j][ID].l3.end.ToVector2());
+					if (dist < length)
+						length = dist;
+					dist = FindDistanceToSegment(s, Game1.track.cars[j][ID].l4.start.ToVector2(), Game1.track.cars[j][ID].l4.end.ToVector2());
+					if (dist < length)
+						length = dist;
+				}
+			}
+			return length;
         }
 
         public static float RotationFromDir(Vector2 dir)

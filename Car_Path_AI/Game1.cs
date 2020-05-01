@@ -250,7 +250,7 @@ namespace Car_Path_AI
                 if (kb_states.IsKeyToggleDown(Keys.R))
                 {
                     curframe = 0;
-                    track.GenerateNew(10);
+                    track.GenerateNew(25);
                 }
 
                 if (UI_Handler.UI_Active_State == 0)
