@@ -225,7 +225,7 @@ namespace Car_Path_AI
             for (int i = 0; i < cars.Count; ++i)
             {
                 cars[i].Reset(startpos, startdir);
-            }*/
+            }
         }
 
         
