@@ -41,7 +41,7 @@ namespace Car_Path_AI
             goalradius = 50;
             int[] nodeanz = new int[] { 4, 5, 5, 5, 1 }; //steering
             RecentBeststeer = new NeuralNetwork(nodeanz);
-            nodeanz = new int[] { 3, 4, 4, 1 }; //gas
+            nodeanz = new int[] { 4, 5, 5, 1 }; //gas
             RecentBestspeed = new NeuralNetwork(nodeanz);
         }
 
@@ -196,9 +196,27 @@ namespace Car_Path_AI
                 for (int i = 0; i < cars[0].Count; ++i)
                 {
 					float averagedist = 0;
-					for(int j = 0; j < Game1.maxcars; ++j)
+					int finishcount = 0;
+					int crashcount = 0;
+					for (int j = 0; j < Game1.maxcars; ++j)
 					{
 						averagedist += cars[j][i].total_dist;
+						if (cars[j][i].State == Car.FINISHED)
+							finishcount++;
+						if (cars[j][i].State == Car.CRASHED)
+							crashcount++;
+					}
+					if (finishcount == Game1.maxcars)
+					{
+						averagedist = 999999;
+						for (int j = 0; j < Game1.maxcars; ++j)
+						{
+							averagedist -= cars[j][i].driving_time;
+						}
+					}
+					for (int j = 0; j < Game1.maxcars; ++j)
+					{
+						averagedist -= cars[j][i].penalty_points * 15;
 					}
 					averagedist /= (float)Game1.maxcars;
                     if (averagedist > bestDist)

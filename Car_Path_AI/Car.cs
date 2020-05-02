@@ -45,7 +45,7 @@ namespace Car_Path_AI
             
             int[] nodeanz = new int[] { 4, 5, 5, 5, 1 }; //steering
             ste_network = new NeuralNetwork(nodeanz);
-            nodeanz = new int[] { 3, 4, 4, 1 }; //gas
+            nodeanz = new int[] { 4, 5, 5, 1 }; //gas
             gas_network = new NeuralNetwork(nodeanz);
             sens_dist = new float[20];
 			this.group = group;
@@ -146,8 +146,10 @@ namespace Car_Path_AI
                 gas_network.nodes[0][0].input = 1.0f;
                 gas_network.nodes[0][1].input = 1.0f - (((float)(sens_dist_FL + sens_dist_FR) * 0.5f) / sens_length);
                 gas_network.nodes[0][2].input = (float)((float)(sens_dist_FFL + sens_dist_FFR) * 0.5f) / (sens_length * 3);
+				gas_network.nodes[0][3].input = -1.0f;
 
-                gas_network.Simulate();
+
+				gas_network.Simulate();
 
                 acl = gas_network.nodes[3][0].input;
                 steering_acl = steeringR - steeringL;
@@ -240,21 +242,25 @@ namespace Car_Path_AI
 					{
 						if (doIntersect(Game1.track.cars[j][ID].l1, l1) || doIntersect(Game1.track.cars[j][ID].l1, l2) || doIntersect(Game1.track.cars[j][ID].l1, l3) || doIntersect(Game1.track.cars[j][ID].l1, l4))
 						{
+							Game1.track.cars[j][ID].State = CRASHED;
 							IsIntersect = true;
 							break;
 						}
 						if (doIntersect(Game1.track.cars[j][ID].l2, l1) || doIntersect(Game1.track.cars[j][ID].l2, l2) || doIntersect(Game1.track.cars[j][ID].l2, l3) || doIntersect(Game1.track.cars[j][ID].l2, l4))
 						{
+							Game1.track.cars[j][ID].State = CRASHED;
 							IsIntersect = true;
 							break;
 						}
 						if (doIntersect(Game1.track.cars[j][ID].l3, l1) || doIntersect(Game1.track.cars[j][ID].l3, l2) || doIntersect(Game1.track.cars[j][ID].l3, l3) || doIntersect(Game1.track.cars[j][ID].l3, l4))
 						{
+							Game1.track.cars[j][ID].State = CRASHED;
 							IsIntersect = true;
 							break;
 						}
 						if (doIntersect(Game1.track.cars[j][ID].l4, l1) || doIntersect(Game1.track.cars[j][ID].l4, l2) || doIntersect(Game1.track.cars[j][ID].l4, l3) || doIntersect(Game1.track.cars[j][ID].l4, l4))
 						{
+							Game1.track.cars[j][ID].State = CRASHED;
 							IsIntersect = true;
 							break;
 						}
@@ -302,6 +308,10 @@ namespace Car_Path_AI
 					dist = (FindIntersection(s1, e1, Game1.track.cars[j][ID].l4.start.ToVector2(), Game1.track.cars[j][ID].l4.end.ToVector2()) - s1).Length();
 					if (dist < length)
 						length = dist;
+					if (length < 10)
+					{
+						penalty_points += (float)(4.0f / (1.0f + length));
+					}
 				}
 			}
 			return length;
@@ -333,6 +343,10 @@ namespace Car_Path_AI
 					dist = FindDistanceToSegment(s, Game1.track.cars[j][ID].l4.start.ToVector2(), Game1.track.cars[j][ID].l4.end.ToVector2());
 					if (dist < length)
 						length = dist;
+					if (length < 10)
+					{
+						penalty_points += (float)(4.0f / (1.0f + length));
+					}
 				}
 			}
 			return length;

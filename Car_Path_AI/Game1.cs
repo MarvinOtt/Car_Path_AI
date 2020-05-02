@@ -226,6 +226,7 @@ namespace Car_Path_AI
 			UI_ValueInput obj = sender as UI_ValueInput;
 			maxcars = obj.final_value;
             track = new Track();
+			track.GenerateNew(25);
 			//track.cars = new List<Car>[maxcars];
 
 		}
